@@ -17,7 +17,7 @@
 (deftest test-uniformity-test
   (is (nil? (-> (sut/make #uuid "e8971453-69c4-499f-a010-53e1e145ee7f")
                 (opt-prng-stateful/as-ints 10000 0 10)
-                (opt-prng-tests/distribution-uniformity 3)))
+                (opt-prng-tests/dstb-uniformity 3)))
       "Uniformity of test is below 3"))
 
 (deftest xoro-lib-test
