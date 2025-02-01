@@ -1,0 +1,93 @@
+#+title: auto-opti
+#+author: Anthony CAUMOND
+# See full fledge org example here https://github.com/fniessen/refcard-org-mode/blob/master/README.org?plain=1
+
+[[https://github.com/hephaistox/auto-core/actions/workflows/commit_validation.yml][https://github.com/hephaistox/auto-core/actions/workflows/commit_validation.yml/badge.svg]] [[https://github.com/hephaistox/auto-core/actions/workflows/deploy_clojar.yml][https://github.com/hephaistox/auto-core/actions/workflows/deploy_clojar.yml/badge.svg]] [[https://github.com/hephaistox/auto-core/actions/workflows/pages/pages-build-deployment][https://github.com/hephaistox/auto-core/actions/workflows/pages/pages-build-deployment/badge.svg]]
+
+[[https://clojars.org/org.clojars.hephaistox/auto-opti][https://img.shields.io/clojars/v/org.clojars.hephaistox/auto-opti.svg]]
+
+[[https://github.com/hephaistox/hephaistox/wiki][https://img.shields.io/badge/wiki-hephaistox-blue.svg]] [[https://github.com/hephaistox/auto-core/wiki][https://img.shields.io/badge/wiki-project-blue.svg]] [[https://github.com/hephaistox/auto-core/discussions][https://img.shields.io/badge/discussions-blue.svg]]
+[[https://hephaistox.github.io/auto-opti/][https://img.shields.io/badge/api-blue.svg]]
+
+
+[[file:docs/img/automaton_small_duck.png]]
+
+#+BEGIN_QUOTE
+If every tool, when ordered, or even of its own accord, could do the work that befits it, just as the creations of Daedalus moved of themselves, or the tripods of Hephaestus went of their own accord to their sacred work, if the shuttle would weave and the plectrum touch the lyre without a hand to guide them, master-craftsmen would have no need of assistants and masters no need of slaves ~ Aristotle, Politics 1253b
+#+END_QUOTE
+
+`auto-opti` provides features for all kind of optimization: whatever the technology is: Discrete event simulation, scheduling, linear programming etc.
+
+* Definition
+** Model
+A model is a simplification of the system that is learning something useful from it, the model formalizes the system through its states and discrete events.
+** System
+The system is the part of the real life that the optimization is dealing with.
+* Features
+The features of those libraries are:
+** Random variable [[https://en.wikipedia.org/wiki/Random_variable][cf. def]]
+- Pseudo-random number generator
+- [[https://en.wikipedia.org/wiki/List_of_probability_distributions][Main distributions]]
+- [[https://en.wikipedia.org/wiki/Normal_distribution][normal distribution]]
+- [[https://en.wikipedia.org/wiki/Discrete_uniform_distribution][discrete uniform distribution]]
+- [[https://en.wikipedia.org/wiki/Poisson_binomial_distribution][Poisson binomial distribution]]
+- [[https://en.wikipedia.org/wiki/Noncentral_chi-squared_distribution][noncentral chi-squared distribution]]
+* Time management
+- Interface for time in optimization
+- Implementation as Clojure date - [[https://github.com/dm3/clojure.java-time][See javatime]]
+- Implementation as integer, one date is a bucket number
+- Implementation as variable bucket management [different bucket size]
+* Scenario management
+- Scenario portfolio
+- Scenario persistence
+* Optimization runner
+- Randomized setup - when some parameters of the optimization are random variable
+- Multiple seed execution
+* Criteria comparison
+- Being able to compare solutions
+- It implements what we typically call Key Performance Indicators.
+* Objective comparison
+- Simple mono-objective comparison
+- Multi-objective comparison [Pareto front]
+* Time phased variable
+** Generic interface
+- get data at a given time whatever the implementation
+** Constant piecewise [[https://mathworld.wolfram.com/PiecewiseConstantFunction.html][cf. def]]
+- between two values: the constant piecewise is returning the value of the previous event where a constant has been set
+- summing two variables: consists in two constant piecewise that are summed
+- typical usage:
+  - stock level: a stock level is set at one point in time, and is constant and still valid for all later on moments, until next stock level information
+** Dirac
+- the value is valid at a specific point
+- between two values: 0 is returned
+- summing two variables: is the union of the two sets of date/value data.
+- typical usage:
+  - production: a production is set at one point in time, every next event does not exist
+** Fuzzy interval
+- the value is somewhere in an interval
+- between two values: the value is somewhere in between
+- summing two variables: each interval intersection has a part of the value [proportional to its size], and the sum of the two intervals are stored
+- typical usage:
+  - Demand: when a demand is set in a month, we don't really know what day it is, all zoom in should spread the value in the interval so the final total is the same
+
+License information can be found in [LICENSE file][LICENSE.md]
+Copyright © 2020-2024 Anthony Caumond, Mateusz Mazurczak
+
+
+
+
+
+
+
+* Main features
+- This project should be agnostic of any environment, so it should run on the following examples of technology: CLI, backend of web app, frontend of web app, Android frontend, Android backend, ...
+- Create cljc versions of features which are not naturally behaving the same between clj and cljs: uuids,
+- Data strucutre helpers : regular expression, strings, keywords, maps, sequences, uuids
+- Logging in clj and cljs with a proxy from cljc
+- Configuration management
+- Translation
+
+* LICENCE
+See license information in [[LICENSE.md][Attribution-NonCommercial 4.0 International]]
+
+Copyright © 2020-2024 Hephaistox
