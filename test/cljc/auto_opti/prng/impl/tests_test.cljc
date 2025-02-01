@@ -4,12 +4,12 @@
    #?@(:clj [[clojure.test :refer [deftest is testing]]]
        :cljs [[cljs.test :refer [deftest is testing] :include-macros true]])))
 
-(deftest distribution-uniformity-test
+(deftest dstb-uniformity-test
   (testing "Accept regular ones"
-    (is (empty? (sut/distribution-uniformity (-> (concat (repeat 30 0) (repeat 30 1))
-                                                 shuffle)
-                                             0.0001))))
+    (is (empty? (sut/dstb-uniformity (-> (concat (repeat 30 0) (repeat 30 1))
+                                         shuffle)
+                                     0.0001))))
   (testing "Refuse empty maps"
-    (is (empty? (sut/distribution-uniformity (-> (concat (repeat 4 0) (repeat 30 1))
-                                                 shuffle)
-                                             77)))))
+    (is (empty? (sut/dstb-uniformity (-> (concat (repeat 4 0) (repeat 30 1))
+                                         shuffle)
+                                     77)))))

@@ -2,16 +2,9 @@
  {:antq {:deps {com.github.liquidz/antq {:mvn/version "2.11.1276"}
                 org.slf4j/slf4j-nop {:mvn/version "2.0.17"}}
          :main-opts ["-m" "antq.core"]}
-  :build {:deps {io.github.clojure/tools.build {:git/tag "v0.10.7"}}
+  :build {:extra-deps {io.github.clojure/tools.build {:git/sha
+                                                      "65b3c45a72b6862783664c436817ad0610372398"}}
           :extra-paths ["build"]}
-  :cider-repl
-  {:exec-args {:port 7003}
-   :exec-fn auto-build.repl.cider-entry-point/start
-   :extra-deps {com.github.hephaistox/auto-build {:git/sha
-                                                  "921f2019af576aa421df50c8b6cea61989ea30c0"}}
-   :extra-paths
-   ["env/dev/resources" "test/clj" "test/cljc" "test/resources" "test/src" "test/resources"]
-   :jvm-opts ["-Djdk.attach.allowAttachSelf=true"]}
   :clj-test-runner {:exec-fn cognitect.test-runner.api/test
                     :extra-deps {com.cognitect/test-runner
                                  {:git/url "https://github.com/cognitect-labs/test-runner"
@@ -31,7 +24,7 @@
   :test-clj {:extra-paths ["test/cljc" "test/resources"]
              :main-opts
              ["-m" "cognitect.test-runner" "-r" ".*-test.*" "-d" "test/clj" "test/cljc"]}}
- :deps {com.github.hephaistox/auto-core {:git/sha "f6fc92d936c08ef3351dec4e287300a99e154b36"}
+ :deps {com.github.hephaistox/auto-core {:git/sha "e9bd003098e875d9db98709d0c9104293b63d852"}
         com.hypirion/clj-xchart {:mvn/version "0.2.0"}
         criterium/criterium {:mvn/version "0.4.6"}
         kixi/stats {:mvn/version "0.5.7"}
