@@ -1,0 +1,6 @@
+-m
+cognitect.test-runner
+-r
+.*-test.*
+-d
+test/cljc
