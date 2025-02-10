@@ -30,8 +30,7 @@
          :extra-paths
          ["env/dev/resources" "test/clj" "test/cljc" "test/resources" "test/src" "test/resources"]}
   :test-clj {:extra-paths ["test/cljc" "test/resources"]
-             :main-opts
-             ["-m" "cognitect.test-runner" "-r" ".*-test.*" "-d" "test/clj" "test/cljc"]}}
+             :main-opts ["-m" "cognitect.test-runner" "-r" ".*-test.*" "-d" "test/cljc"]}}
  :deps {com.github.hephaistox/auto-core {:git/sha "0c3949ca20c9b0610b3871cf559ac18a595e20bf"}
         com.hypirion/clj-xchart #:mvn{:version "0.2.0"}
         criterium/criterium {:mvn/version "0.4.6"}

@@ -7,14 +7,14 @@
    [auto-opti.prng         :as opt-prng]))
 
 (deftest distribution-test
-  (is (-> (sut/distribution)
+  (is (-> (sut/distribution {})
           sut/draw
           number?)
       "Is an empty parameter map creating a valid distribution")
-  (is (-> (sut/distribution)
+  (is (-> (sut/distribution {:seed #uuid "31bf8660-b31b-4c1c-b440-8ecf82e0a477"})
           sut/draw
           number?)
-      "Is an empty parameter map creating a valid distribution"))
+      "If seed is provided"))
 
 (deftest as-int-pair-test
   (is (nil? (core-schema/validate-data-humanize
