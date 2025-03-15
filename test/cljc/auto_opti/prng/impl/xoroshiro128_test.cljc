@@ -21,23 +21,23 @@
       "Uniformity of test is below 3"))
 
 (deftest xoro-lib-test
-  (is (= (mapv cljc-long.core/long
-               ["-8599790385339156450"
-                "-2397555347192430356"
-                "6070147179690023442"
-                "-5761889779339854540"
-                "4712530076458880124"
-                "-6281817213406599400"
-                "-4444086269195772773"
-                "7597340901018260824"
-                "1097062382358739162"
-                "-8437855807897079762"])
-         (let [uuid #uuid "e8971453-69c4-499f-a010-53e1e145ee7f"
-               seed (xoro/uuid->seed128 uuid)]
-           (loop [prng (xoro/xoroshiro128+ seed)
-                  res []
-                  n 10]
-             (if (pos? n) (recur (xoro/next prng) (conj res (xoro/value prng)) (dec n)) res))))
+  (is (=
+       ["-8599790385339156450"
+        "-2397555347192430356"
+        "6070147179690023442"
+        "-5761889779339854540"
+        "4712530076458880124"
+        "-6281817213406599400"
+        "-4444086269195772773"
+        "7597340901018260824"
+        "1097062382358739162"
+        "-8437855807897079762"]
+       (let [uuid #uuid "e8971453-69c4-499f-a010-53e1e145ee7f"
+             seed (xoro/uuid->seed128 uuid)]
+         (loop [prng (xoro/xoroshiro128+ seed)
+                res []
+                n 10]
+           (if (pos? n) (recur (xoro/next prng) (conj res (str (xoro/value prng))) (dec n)) res))))
       "Is xoroshiro library finding the same result ?"))
 
 (deftest make-stateless-test
