@@ -2,15 +2,12 @@
  {:antq {:deps {com.github.liquidz/antq {:mvn/version "2.11.1276"}
                 org.slf4j/slf4j-nop {:mvn/version "2.0.17"}}
          :main-opts ["-m" "antq.core"]}
-  :build {:extra-deps {io.github.clojure/tools.build {:git/sha
-                                                      "65b3c45a72b6862783664c436817ad0610372398"}}
-          :extra-paths ["build"]}
   :clj-test-runner {:exec-fn cognitect.test-runner.api/test
                     :extra-deps {com.cognitect/test-runner
                                  {:git/url "https://github.com/cognitect-labs/test-runner"
                                   :sha "3f288f1f16d167723ad87cc35b1dfee3c1681e10"}}}
   :cljs-deps {:extra-deps {thheller/shadow-cljs {:mvn/version "2.28.21"}}
-              :extra-paths ["src/cljc" "env/dev/resources" "test/cljc"]}
+              :extra-paths ["src/cljc" "test/cljc"]}
   :codox
   {:exec-args
    {:description

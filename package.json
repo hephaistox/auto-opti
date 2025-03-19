@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {},
   "private": true,
-  "description": "Core functions for Hephaistox project",
+  "description": "`auto-opti` are common features for all optimization technologies",
   "version": "0.0.1",
   "author": "Hephaistox <info@hephaistox.com>",
   "workspaces": [],
