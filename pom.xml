@@ -6,7 +6,7 @@
   <artifactId>auto-opti</artifactId>
   <version>LATEST</version>
   <name>automan-core</name>
-  <description>`auto-opti` is a library to ease project cicd: build, test, deployment... </description>
+  <description>`auto-opti` are common features for all optimization technologies</description>
   <url>https://github.com/hephaistox/auto-opti</url>
 
   <licenses>
