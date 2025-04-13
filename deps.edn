@@ -21,7 +21,7 @@
   :test-clj {:extra-paths ["test/cljc" "test/resources"]
              :main-opts
              ["-m" "cognitect.test-runner" "-r" ".*-test.*" "-d" "test/clj" "test/cljc"]}}
- :deps {com.github.hephaistox/auto-core {:git/sha "e9bd003098e875d9db98709d0c9104293b63d852"}
+ :deps {com.github.hephaistox/auto-core {:git/sha "a96f0144c8b6f779ef3e826230d4b1ca246bb82a"}
         com.hypirion/clj-xchart {:mvn/version "0.2.0"}
         criterium/criterium {:mvn/version "0.4.6"}
         kixi/stats {:mvn/version "0.5.7"}
