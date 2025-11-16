@@ -36,6 +36,7 @@
                               rest)))
     (uuid-seed [_] 1234)
     (peek-int [_ _ _] (first vals))
+    (peek-double [_ _ _] (first vals))
     (next [_] (PRNGStatelessSTUB. (rest vals))))
 
 (deftest prngstateless-test (is (test-all (->PRNGStatelessSTUB [10 12 11 19 15])) "Test stub"))

@@ -15,6 +15,9 @@
     (measure [_this date data] (Additive. (update deltas date #(if (nil? %) data (+ data %)))))
     (get-measure [_this date] (get deltas date 0))
     (get-measures [_this] (vals deltas))
+    (cumulative [_] nil)
+    (moving-average [_] nil)
+    (scalar-fn [_ _] nil)
     (clamp [_this new-start new-end]
       (let [clamped-deltas (->> deltas
                                 (keep (fn [[k v]]

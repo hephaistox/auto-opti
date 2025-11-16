@@ -1,4 +1,4 @@
-{:deps {com.github.hephaistox/auto-build {:git/sha "319337735ac9f23be4b4dabdc610b5b0095b5ed2"}}
+{:deps {com.github.hephaistox/auto-build {:git/sha "cdf568f559c10f0263ba564f7cda1d98e706553c"}}
  :paths []
  :tasks
  {:requires [[auto-build.os.exit-codes] [auto-build.os.exiting :refer [exit]]]
@@ -41,6 +41,9 @@
               [auto-build.echo :refer [level1-header]]]
    :task (-> (build-cljs-node-test/cljs-node-test level1-header "." (current-task) ["ltest"])
              exit)}
+  copy {:doc "Copy files from source projects (as defined in ext_src.edn)"
+        :requires [[auto-build.tasks.copy :as tc] [auto-build.echo :refer [level1-header]]]
+        :task (tc/run level1-header "ext_src.edn")}
   deploy {:doc "Deploy"
           :requires [[auto-build.tasks.deploy :as task-deploy]
                      [auto-build.echo :refer [level1-header]]]
