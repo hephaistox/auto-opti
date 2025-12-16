@@ -14,10 +14,10 @@
     (is (= 5
            (-> (sut/make [4 6])
                opt-sample-prot/average)))
-    (is (opt-maths/approx= 1
+    (is (opt-maths/approx= 0.0001
+                           1
                            (-> (sut/make [4 6])
-                               opt-sample-prot/variance)
-                           0.0001))
+                               opt-sample-prot/variance)))
     (is (= 5
            (-> (sut/make [4 6])
                opt-sample-prot/median)))))

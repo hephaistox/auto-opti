@@ -1,9 +1,9 @@
-(ns auto-opti.dstb-test
+(ns auto-opti.distribution-test
   (:require
    [auto-core.schema :as core-schema]
    #?@(:clj [[clojure.test :refer [deftest is]]]
        :cljs [[cljs.test :refer [deftest is] :include-macros true]])
-   [auto-opti.dstb   :as sut]
+   [auto-opti.distribution   :as sut]
    [auto-opti.prng   :as opt-prng]))
 
 (deftest dstb-test

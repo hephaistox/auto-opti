@@ -107,7 +107,7 @@
                   :gap (- expected (sut/log-gamma idx))
                   :abs-gap (opt-maths/abs (- expected (sut/log-gamma idx)))
                   :abs-gap-zero? (zero? (opt-maths/abs (- expected (sut/log-gamma idx))))
-                  :fn (opt-maths/approx= (sut/log-gamma idx) expected 0.1)})))
+                  :fn (opt-maths/approx= 0.1 (sut/log-gamma idx) expected)})))
        (remove nil?)))
 
 (deftest log-gamma-returns-correct-point-values

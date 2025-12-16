@@ -42,12 +42,6 @@
     (->Kixi (kixi-distribution/binomial {:n n
                                          :p p}))))
 
-(defn make-categorical
-  "Returns a categorical distribution. `{[category] [probability], ...}` Probabilities should be >= 0 and sum to 1."
-  [category-probabilities]
-  (when (every? #(and (number? %) (<= 0 % 1)) (vals category-probabilities))
-    (->Kixi (kixi-distribution/categorical category-probabilities))))
-
 (defn make-cauchy
   "Returns a Cauchy distribution. `{:location ∈ ℝ, :scale ∈ ℝ > 0}`."
   [location scale]
@@ -72,11 +66,6 @@
   (when (and (nat-int? n) (every? #(and (number? %) (>= % 0)) alphas))
     (->Kixi (kixi-distribution/dirichlet-multinomial {:alphas alphas
                                                       :n n}))))
-
-(defn make-exponential
-  "Returns an exponential distribution. `{:rate ∈ ℝ > 0}`."
-  [rate]
-  (when (and (number? rate) (pos? rate)) (->Kixi (kixi-distribution/exponential {:rate rate}))))
 
 (defn make-f
   "Returns an F distribution. `{:d1 ∈ ℝ > 0, :d2 ∈ ℝ > 0}`."
@@ -137,13 +126,6 @@
   "Returns a t distribution. `{:v ∈ ℝ > 0}`."
   [v]
   (when (and (number? v) (pos? v)) (->Kixi (kixi.stats.distribution/t {:v v}))))
-
-(defn make-uniform
-  "Returns a uniform distribution. `{:a ∈ ℝ, :b ∈ ℝ, :a < :b}`."
-  [a b]
-  (when (and (number? a) (number? b) (<= a b))
-    (->Kixi (kixi.stats.distribution/uniform {:a a
-                                              :b b}))))
 
 (defn make-weibull
   "Returns a weibull distribution. `{:shape ∈ ℝ >= 0, :scale ∈ ℝ >= 0}`."

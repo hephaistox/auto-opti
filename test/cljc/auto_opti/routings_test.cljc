@@ -1,6 +1,6 @@
 (ns auto-opti.routings-test
   (:require
-   [auto-opti.dstb     :as opt-dstb]
+   [auto-opti.distribution     :as opt-dstb]
    [auto-opti.prng     :as opt-prng]
    [auto-opti.routings :as sut]
    #?(:clj [clojure.test :refer [deftest is]]

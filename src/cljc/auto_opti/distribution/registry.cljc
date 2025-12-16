@@ -4,6 +4,7 @@
   They are all implementing the `auto-opti.proba.distribution/Distribution` protocol.
   Note that you can enrich them with your own distribution implementations if needed."
   (:require
+   [auto-opti.distribution.impl.category        :as opt-category]
    [auto-opti.distribution.impl.exponential     :as opt-expo]
    [auto-opti.distribution.impl.kixi-stats      :as opt-kixi-stats]
    [auto-opti.distribution.impl.uniform         :as opt-uniform]
@@ -19,8 +20,8 @@
    :beta-binomial (fn [_prng {:keys [n alpha beta]}]
                     (opt-kixi-stats/make-beta-binomial n alpha beta))
    :binomial (fn [_prng {:keys [n p]}] (opt-kixi-stats/make-binomial n p))
-   :categorical (fn [_prng {:keys [category-probabilities]}]
-                  (opt-kixi-stats/make-categorical category-probabilities))
+   :categorical (fn [prng {:keys [category-probabilities]}]
+                  (opt-category/make prng category-probabilities))
    :cauchy (fn [_prng {:keys [location scale]}] (opt-kixi-stats/make-cauchy location scale))
    :chi-squared (fn [_prng {:keys [k]}] (opt-kixi-stats/make-chi-squared k))
    :dirichlet (fn [_prng {:keys [alphas]}] (opt-kixi-stats/make-dirichlet alphas))

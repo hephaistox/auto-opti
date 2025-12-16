@@ -5,7 +5,7 @@
    #?(:clj [clojure.test :refer [deftest is]]
       :cljs [cljs.test :refer [deftest is] :include-macros true])))
 
-(defn close-to-pi "Is `x` close to `π`?" [x] (<= (opt-maths/abs (- x opt-maths/PI)) 0.1))
+(defn close-to-pi "Is `x` close to `π`?" [x] (<= (opt-maths/abs (- x opt-maths/PI)) 0.01))
 
 (deftest eval-test
   (is (-> (sut/eval {}

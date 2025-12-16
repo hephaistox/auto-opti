@@ -1,17 +1,17 @@
-(ns auto-opti.dstb
+(ns auto-opti.distribution
   "Distribution api"
   (:refer-clojure :exclude [resolve])
   (:require
-   [auto-opti.dstb.dstb-protocol            :as opt-dstb-prot]
-   [auto-opti.dstb.impl.category            :as opt-category]
-   [auto-opti.dstb.impl.exponential         :as opt-expo]
-   [auto-opti.dstb.impl.exponential-integer :as opt-expo-int]
-   [auto-opti.dstb.impl.kixi-stats          :as opt-kixi-stats]
-   [auto-opti.dstb.impl.normal              :as opt-normal]
-   [auto-opti.dstb.impl.uniform             :as opt-uniform]
-   [auto-opti.dstb.impl.uniform-integer     :as opt-uniform-int]
-   [auto-opti.maths                         :as opt-maths]
-   [auto-opti.prng                          :as opt-prng]))
+   [auto-opti.distribution.distribution-protocol            :as opt-dstb-prot]
+   [auto-opti.distribution.impl.category            :as opt-category]
+   [auto-opti.distribution.impl.exponential         :as opt-expo]
+   [auto-opti.distribution.impl.exponential-integer :as opt-expo-int]
+   [auto-opti.distribution.impl.kixi-stats          :as opt-kixi-stats]
+   [auto-opti.distribution.impl.normal              :as opt-normal]
+   [auto-opti.distribution.impl.uniform             :as opt-uniform]
+   [auto-opti.distribution.impl.uniform-integer     :as opt-uniform-int]
+   [auto-opti.maths                                 :as opt-maths]
+   [auto-opti.prng                                  :as opt-prng]))
 
 (defn factory
   "Creates the distribution `dstb-name` leveraging the `prng`.
@@ -118,7 +118,4 @@
   [dstb p]
   (opt-dstb-prot/cumulative dstb p))
 
-(defn resolve
-  "Turns a `distribution` into its actual value"
-  [dstb]
-  (if (number? dstb) dstb (draw dstb)))
+

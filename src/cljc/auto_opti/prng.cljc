@@ -1,36 +1,27 @@
 (ns auto-opti.prng
   "Pseudo random number generator.
+
   This protocol hides the complexity of the different random number generator. As many different implementations exists and none superseeds all others."
   (:require
    [auto-opti.prng.impl.built-in     :as opt-prng-built-in]
    [auto-opti.prng.impl.xoroshiro128 :as opt-prng-xoro]
    [auto-opti.prng.stateful          :as opt-prng-stateful]))
 
-(defn xoroshiro128
-  "Creates a xoroshiro128 prng instance, the optional `params` parameter can be supplied to force."
-  ([] (opt-prng-xoro/make))
-  ([seed] (opt-prng-xoro/make seed)))
-
-(defn built-in
-  "Creates an instance of the built-in prng of your platform (java or javascript)."
-  []
-  (opt-prng-built-in/make))
-
 (def prng-registry
-  {:xoroshiro128 (fn [{:keys [seed]}] (xoroshiro128 seed))
-   :built-in (fn [_] (built-in))})
+  "Registry of prngs, with a function turning a seed into an implementation of `opt-prng-stateful/PRNG`."
+  {:xoroshiro128
+   (fn [{::keys [seed]}]
+     (if (string? seed) (opt-prng-xoro/make (parse-uuid seed)) (opt-prng-xoro/make seed)))
+   :built-in (fn [_] (opt-prng-built-in/make))})
 
 (defn prng
-  "Creates a `prng` with or without seed."
-  [{:keys [prng-name seed registry]
+  "Creates a `prng` based on a parameter map."
+  [{::keys [prng-name seed registry]
     :or {seed #uuid "54b9758a-906f-4ec9-b1eb-1efef7f67e3b"
+         prng-name :xoroshiro128
          registry prng-registry}
     :as params}]
-  (try (when-let [prng-builder (get registry prng-name)] (prng-builder (assoc params :seed seed)))
-       (catch #?(:clj Exception
-                 :cljs :default)
-         _
-         nil)))
+  (when-let [prng-builder (get registry prng-name)] (prng-builder (assoc params ::seed seed))))
 
 (defn duplicate
   "Duplicates this prng to a new one, starting at the seed value."
@@ -65,8 +56,22 @@
   [prng n min-int max-int]
   (when (and min-int max-int n) (opt-prng-stateful/as-ints prng n min-int max-int)))
 
+(defn as-double
+  "Returns a double generated with `prng` between `[min-double; max-double[`."
+  [prng min-double max-double]
+  (when (and min-double max-double) (opt-prng-stateful/rnd-double prng min-double max-double)))
+
+(defn as-double-pair
+  "Returns a pair of random doubles between `[min-double; max-double[`."
+  [prng min-double max-double]
+  (when (and min-double max-double)
+    (let [rnd1 (as-int prng min-double max-double)
+          rnd2 (as-int prng min-double max-double)]
+      [rnd1 rnd2])))
+
 (defn as-doubles
-  "Draw `n` random doubles with `prng`, between `[min-int; max-int[`."
-  [prng n min-int max-int]
-  (when (and min-int max-int n)
-    (repeatedly n #(opt-prng-stateful/rnd-double prng min-int max-int))))
+  "Draw `n` random doubles with `prng`, between `[min-double; max-double[`."
+  [prng n min-double max-double]
+  (when (and min-double max-double n)
+    (repeatedly n #(opt-prng-stateful/rnd-double prng min-double max-double))))
+

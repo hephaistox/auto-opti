@@ -1,32 +1,30 @@
-(ns auto-opti.distribution.impl.exponential-test
+(ns auto-opti.distribution.impl.exponential-integer-test
   (:require
    #?@(:clj [[clojure.test :refer [deftest is]]]
        :cljs [[cljs.test :refer [deftest is] :include-macros true]])
-   [auto-opti.distribution                  :as opt-distribution-prot]
-   [auto-opti.distribution.impl.exponential :as sut]
-   [auto-opti.maths                         :as opt-maths]
-   [auto-opti.prng.impl.xoroshiro128        :as opt-prng-xoro]))
+   [auto-opti.distribution                          :as opt-distribution-prot]
+   [auto-opti.distribution.impl.exponential-integer :as sut]
+   [auto-opti.maths                                 :as opt-maths]
+   [auto-opti.prng.impl.xoroshiro128                :as opt-prng-xoro]))
 
 (def uuid-stub #uuid "760c96be-38e4-451f-92ad-674b27121298")
 
 (deftest draw-test
-  (is (opt-maths/approx= 0.000001
-                         (-> (opt-prng-xoro/make uuid-stub)
-                             (sut/make 2.0)
-                             opt-distribution-prot/draw)
-                         1.689404)
-      "Draw returns a double"))
+  (is (= (-> (opt-prng-xoro/make uuid-stub)
+             (sut/make 2.0)
+             opt-distribution-prot/draw)
+         1)
+      "Draw returns an integer"))
 
 (deftest median-test
-  (is (opt-maths/approx= 0.000001
-                         (-> (opt-prng-xoro/make uuid-stub)
-                             (sut/make 2.0)
-                             opt-distribution-prot/median)
-                         0.34657)
-      "Is the median of exponential 2 is (ln 2)/lambda"))
+  (is (= (-> (opt-prng-xoro/make uuid-stub)
+             (sut/make 2.0)
+             opt-distribution-prot/median)
+         0)
+      "Is the median of exponential 2 is 0"))
 
 (deftest cumulative-test
-  (is (opt-maths/approx= 0.00001
+  (is (opt-maths/approx= 0.0001
                          (-> (opt-prng-xoro/make uuid-stub)
                              (sut/make 2.0)
                              (opt-distribution-prot/cumulative 0.4))
@@ -53,64 +51,74 @@
       "Quantile"))
 
 (def assembly-test-res
-  {0 3592
-   7 908
-   20 64
-   27 13
-   1 2988
-   24 30
-   39 5
-   4 1660
-   15 165
-   21 68
-   31 7
-   32 4
-   40 1
-   33 5
-   13 285
-   22 44
-   36 3
-   43 1
-   29 17
-   44 1
-   6 1045
-   28 9
-   25 22
-   34 5
-   17 146
-   3 1947
-   12 330
-   2 2439
-   23 35
-   35 5
-   19 84
-   11 404
-   9 568
-   5 1354
-   14 215
-   26 27
-   16 164
-   38 1
-   30 7
-   10 502
-   18 107
-   42 1
-   37 3
-   8 718
-   49 1})
+  {0 36185
+   7 8982
+   59 1
+   20 672
+   58 1
+   27 144
+   1 29708
+   24 304
+   39 23
+   46 5
+   4 16235
+   15 1774
+   48 2
+   50 1
+   21 579
+   31 63
+   32 58
+   40 13
+   33 59
+   13 2743
+   22 433
+   36 35
+   41 4
+   43 12
+   61 1
+   29 104
+   44 4
+   6 10853
+   28 124
+   25 231
+   34 40
+   17 1270
+   3 19621
+   12 3214
+   2 24414
+   23 359
+   47 2
+   35 37
+   19 873
+   11 4040
+   9 5986
+   5 13543
+   14 2139
+   45 3
+   26 204
+   16 1490
+   38 10
+   30 105
+   10 4865
+   18 1020
+   52 2
+   42 12
+   37 22
+   8 7374
+   49 2})
 
 (deftest assembly-test
   (is (= assembly-test-res
          (let [t (-> (opt-prng-xoro/make uuid-stub)
                      (sut/make 0.2))]
-           (->> (repeat 20000 t)
-                (mapv #(int (opt-distribution-prot/draw %)))
+           (->> (repeat 200000 t)
+                (mapv opt-distribution-prot/draw)
                 frequencies)))))
 
 (comment
   (require '[com.hypirion.clj-xchart :as c])
   (c/view (c/category-chart {"Values" assembly-test-res}
-                            {:title "Exponential"
+                            {:title "Exponential integer"
                              :series-order (->> assembly-test-res
                                                 keys
                                                 sort

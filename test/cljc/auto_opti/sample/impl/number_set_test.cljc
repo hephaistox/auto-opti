@@ -24,8 +24,8 @@
 
 (deftest variance-test
   (testing "Empty" (is (nil? (sut/variance nil))) (is (nil? (sut/variance []))))
-  (testing "Singleton has a zero variance" (is (zero? (sut/variance [2]))))
-  (is (opt-maths/approx= 4.0 (sut/variance [2 4 4 4 5 5 7 9]) 0.001)))
+  (is (zero? (sut/variance [2])) "Singleton has a zero variance")
+  (is (opt-maths/approx= 0.001 4.0 (sut/variance [2 4 4 4 5 5 7 9]))))
 
 (deftest standard-deviation-test
   (testing "Empty set has no standard deviation"
@@ -43,8 +43,8 @@
 (deftest midrange-test
   (testing "Midrange is ok"
     (is (= 50 (sut/midrange-long [2 98 13 10]) (sut/midrange-long [2 98])))
-    (is (opt-maths/approx= 50.0 (sut/midrange-double [2 98 13 10]) 0.0001)
-        (opt-maths/approx= 50.0 (sut/midrange-double [2 98]) 0.0001)))
+    (is (opt-maths/approx= 0.0001 50.0 (sut/midrange-double [2 98 13 10]))
+        (opt-maths/approx= 0.0001 50.0 (sut/midrange-double [2 98]))))
   (testing "Midrange is ok"
     (is (nil? (sut/midrange [])))
     (is (nil? (sut/midrange nil)))

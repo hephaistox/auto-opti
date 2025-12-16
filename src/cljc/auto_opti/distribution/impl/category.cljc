@@ -1,8 +1,8 @@
-(ns auto-opti.dstb.impl.category
+(ns auto-opti.distribution.impl.category
   "A category distribution."
   (:require
-   [auto-opti.dstb.dstb-protocol :as opt-dstb-prot]
-   [auto-opti.prng.stateful      :as opt-prng-stateful]))
+   [auto-opti.distribution.distribution-protocol :as opt-prot]
+   [auto-opti.prng.stateful                      :as opt-prng-stateful]))
 
 (defn pick-category
   [value categories]
@@ -15,7 +15,7 @@
       :else (recur (- value v) rcategories))))
 
 (defrecord Category [prng categories total-weight]
-  opt-dstb-prot/Distribution
+  opt-prot/Distribution
     (draw [_]
       (when (pos? total-weight)
         (-> prng

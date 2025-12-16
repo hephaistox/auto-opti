@@ -6,40 +6,32 @@
        :cljs [[cljs.test :refer [deftest is testing] :include-macros true]])))
 
 (deftest Kixi-test
-  (testing "Is bernoulli working?"
-    (is (boolean? (-> (sut/make-bernoulli 0.5)
-                      opt-distribution-prot/draw))))
-  (testing "Is beta working?"
-    (is (float? (-> (sut/make-beta 0.5 0.7)
-                    opt-distribution-prot/draw))))
-  (testing "Is beta-binomial working?"
-    (is (integer? (-> (sut/make-beta-binomial 2 0.5 0.7)
-                      opt-distribution-prot/draw))))
-  (testing "Is binomial working?"
-    (is (integer? (-> (sut/make-binomial 5 0.7)
-                      opt-distribution-prot/draw))))
-  (testing "Is categorial working?"
-    (is (keyword? (-> (sut/make-categorical {:a 0.1
-                                             :b 0.3
-                                             :c 0.6})
-                      opt-distribution-prot/draw))))
-  (testing "Is cauchy working?"
-    (is (float? (-> (sut/make-cauchy 0.4 0.6)
-                    opt-distribution-prot/draw))))
-  (testing "Is chi-squared working?"
-    (is (float? (-> (sut/make-chi-squared 3)
-                    opt-distribution-prot/draw))))
-  (testing "Is dirichlet working?"
-    (is (every? float?
-                (-> (sut/make-dirichlet [3 4.0])
-                    opt-distribution-prot/draw))))
-  (testing "Is dirichlet multinomial working?"
-    (is (every? integer?
-                (-> (sut/make-dirichlet-multinomial 3 [3 4.0])
-                    opt-distribution-prot/draw))))
-  (testing "Is exponential working?"
-    (is (float? (-> (sut/make-exponential 0.4)
-                    opt-distribution-prot/draw))))
+  (is (boolean? (-> (sut/make-bernoulli 0.5)
+                    opt-distribution-prot/draw))
+      "Is bernoulli working?")
+  (is (float? (-> (sut/make-beta 0.5 0.7)
+                  opt-distribution-prot/draw))
+      "Is beta working?")
+  (is (integer? (-> (sut/make-beta-binomial 2 0.5 0.7)
+                    opt-distribution-prot/draw))
+      "Is beta-binomial working?")
+  (is (integer? (-> (sut/make-binomial 5 0.7)
+                    opt-distribution-prot/draw))
+      "Is binomial working?")
+  (is (float? (-> (sut/make-cauchy 0.4 0.6)
+                  opt-distribution-prot/draw))
+      "Is cauchy working?")
+  (is (float? (-> (sut/make-chi-squared 3)
+                  opt-distribution-prot/draw))
+      "Is chi-squared working?")
+  (is (every? float?
+              (-> (sut/make-dirichlet [3 4.0])
+                  opt-distribution-prot/draw))
+      "Is dirichlet working?")
+  (is (every? integer?
+              (-> (sut/make-dirichlet-multinomial 3 [3 4.0])
+                  opt-distribution-prot/draw))
+      "Is dirichlet multinomial working?")
   (testing "Is f working?"
     (is (float? (-> (sut/make-f 0.4 0.7)
                     opt-distribution-prot/draw))))

@@ -18,3 +18,4 @@
     (rnd-double [_ a b] (+ a (mod (rand) (- b a)))))
 
 (defn make [] (->Builtin))
+

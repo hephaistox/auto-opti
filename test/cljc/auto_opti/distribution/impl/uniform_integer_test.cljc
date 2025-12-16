@@ -49,16 +49,16 @@
                (sut/make 3 12)
                opt-distribution-prot/maximum))))
   (testing "quantile"
-    (is (opt-maths/approx= 4.8
+    (is (opt-maths/approx= 0.001
+                           4.8
                            (-> (opt-prng-xoro/make)
                                (sut/make 3 12)
-                               (opt-distribution-prot/quantile 0.2))
-                           0.001))
-    (is (opt-maths/approx= 7.5
+                               (opt-distribution-prot/quantile 0.2))))
+    (is (opt-maths/approx= 0.001
+                           7.5
                            (-> (opt-prng-xoro/make)
                                (sut/make 3 12)
-                               (opt-distribution-prot/quantile 0.5))
-                           0.001)))
+                               (opt-distribution-prot/quantile 0.5)))))
   (testing "Test uniform interquartile"
     (is (= 4.5
            (-> (opt-prng-xoro/make)

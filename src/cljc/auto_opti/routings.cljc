@@ -6,7 +6,7 @@
   * `m` the machine name
   * `pt` the processing time that could be an integer or a distribution"
   (:require
-   [auto-opti.dstb :as opt-dstb]))
+   [auto-opti.distribution :as opt-dstb]))
 
 (defn machines
   "Sorted list of machines"

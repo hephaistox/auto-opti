@@ -2,9 +2,7 @@
 #+author: Anthony CAUMOND
 # See full fledge org example here https://github.com/fniessen/refcard-org-mode/blob/master/README.org?plain=1
 
-[[https://github.com/hephaistox/auto-core/actions/workflows/commit_validation.yml][https://github.com/hephaistox/auto-core/actions/workflows/commit_validation.yml/badge.svg]] [[https://github.com/hephaistox/auto-core/actions/workflows/deploy_clojar.yml][https://github.com/hephaistox/auto-core/actions/workflows/deploy_clojar.yml/badge.svg]] [[https://github.com/hephaistox/auto-core/actions/workflows/pages/pages-build-deployment][https://github.com/hephaistox/auto-core/actions/workflows/pages/pages-build-deployment/badge.svg]]
-
-[[https://clojars.org/org.clojars.hephaistox/auto-opti][https://img.shields.io/clojars/v/org.clojars.hephaistox/auto-opti.svg]]
+[[https://github.com/hephaistox/auto-core/actions/workflows/commit_validation.yml][https://github.com/hephaistox/auto-core/actions/workflows/commit_validation.yml/badge.svg]]  [[https://github.com/hephaistox/auto-core/actions/workflows/pages/pages-build-deployment][https://github.com/hephaistox/auto-core/actions/workflows/pages/pages-build-deployment/badge.svg]]
 
 [[https://github.com/hephaistox/hephaistox/wiki][https://img.shields.io/badge/wiki-hephaistox-blue.svg]] [[https://github.com/hephaistox/auto-core/wiki][https://img.shields.io/badge/wiki-project-blue.svg]] [[https://github.com/hephaistox/auto-core/discussions][https://img.shields.io/badge/discussions-blue.svg]]
 [[https://hephaistox.github.io/auto-opti/][https://img.shields.io/badge/api-blue.svg]]

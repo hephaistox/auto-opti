@@ -18,10 +18,10 @@
     :source-uri "https://github.com/hephaistox/auto-opti/blob/{version}/{filepath}#L{line}"}
    :exec-fn codox.main/generate-docs
    :extra-deps {codox/codox {:mvn/version "0.10.8"}}}
-  :test-clj {:extra-paths ["test/cljc" "test/resources"]
-             :main-opts
-             ["-m" "cognitect.test-runner" "-r" ".*-test.*" "-d" "test/clj" "test/cljc"]}}
+  :test-clj {:extra-paths ["test/cljc"]
+             :main-opts ["-m" "cognitect.test-runner" "-r" ".*-test.*" "-d" "test/cljc"]}}
  :deps {com.github.hephaistox/auto-core {:git/sha "c170d425edcae7730253994382bf3960ed5e247f"}
+        com.hypirion/clj-xchart {:mvn/version "0.2.0"}
         criterium/criterium {:mvn/version "0.4.6"}
         kixi/stats {:mvn/version "0.5.8"}
         thedavidmeister/xoroshiro128 {:mvn/version "1.1.3"}}

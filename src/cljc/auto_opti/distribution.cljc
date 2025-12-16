@@ -1,5 +1,6 @@
 (ns auto-opti.distribution
   "Probabilitisc distributions."
+  (:refer-clojure :exclude [resolve])
   (:require
    [auto-opti.distribution.distribution-protocol :as opt-distribution-prot]
    [auto-opti.distribution.impl.factory          :as opt-distribution-factory]
@@ -51,3 +52,8 @@
   "Returns the cumulative probability before `p`"
   [this p]
   (opt-distribution-prot/cumulative this p))
+
+(defn resolve
+  "Turns a `distribution` into its actual value"
+  [dstb]
+  (if (number? dstb) dstb (draw dstb)))
