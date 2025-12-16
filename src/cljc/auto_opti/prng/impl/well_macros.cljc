@@ -1,4 +1,6 @@
-(ns auto-opti.prng.impl.well-macros)
+(ns auto-opti.prng.impl.well-macros
+  (:require
+   [auto-opti.maths :as opt-maths]))
 
 (defmacro bit-shift-right-ns
   "A bit shift that doesn't do sign extension."
@@ -17,9 +19,10 @@
 
 (defmacro mat0-pos [t v] `(let [v# ~v] (bit-xor v# (bit-shift-right v# ~t))))
 
-(defmacro mat0-neg
-  [t v]
-  `(let [v# ~v] (long (bit-xor v# (limit-bits (bit-shift-left v# (- ~t))))))
-  2)
+(mat0-pos 1 10)
+
+(defmacro mat0-neg [t v] `(let [v# ~v] (long (bit-xor v# (limit-bits (bit-shift-left v# (- ~t)))))))
 
 (defmacro add-mod-32 [a b] `(long (bit-and (+ ~a ~b) 0x01f)))
+
+(def int-max (bit-or (bit-shift-left opt-maths/infinity-integer 1) 1))
