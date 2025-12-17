@@ -1,9 +1,10 @@
 (ns auto-opti.eval
+  "Optimisation evalutions. This namespace contains some simple evalution for test purposed and is expected to be enriched by user or other libraries."
   (:require
    [auto-opti.eval.montecarlo :as opt-montecarlo]))
 
 (def registry
   {:montecarlo-pi {:doc "Returns an evaluation of pi thanks to the montercarlo method."
                    :rep :seed
-                   :build-eval opt-montecarlo/build-valid
-                   :f opt-montecarlo/eval}})
+                   :valid-pars opt-montecarlo/valid-pars
+                   :eval opt-montecarlo/eval}})

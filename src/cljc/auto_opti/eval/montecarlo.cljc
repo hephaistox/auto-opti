@@ -51,9 +51,10 @@
 
 (def mc-model-schema [:map [:radius :int] [:iterations :int]])
 
-(defn build-valid
+(defn valid-pars
   "Returns `nil` if valid, a `map` if errors are found."
   [_params _iterator-fn model]
   (let [mv (opt-schema/validate-data-humanize mc-model-schema model)]
     (cond-> nil
       mv (assoc :model mv))))
+
