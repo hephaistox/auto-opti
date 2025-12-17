@@ -1,0 +1,186 @@
+#+title: Crit Comp
+In mathematical and computer science modelling, two solutions are compared with one or many criteria. This namespace contains helpers to model criteria to be used in optimisation and user interface.
+* Why another criteria library?
+The main reasons are:
+- When dealing with criteria optimisation, [[file:design_decisions.org][decision 1]] implies being able to switch easily from one criteria to another.
+- Most comparisons are standard and should be available off the shelf and be battle tested.
+* Quickstart
+#+begin_src clojure
+(require '[auto-opti.crit-comp :as opti-crit])
+
+ (def crit-fn
+   (-> {:crit-comp-name :smaller}
+       opti-crit/crit-comp-fn))
+
+  [(crit-fn 12 13)
+   (crit-fn 13 12)
+   (crit-fn 13 13)]
+;; ==> [-1 1 0]
+#+end_src
+
+#+RESULTS:
+: [-1 1 0]
+
+Values in the result illustrate the different use cases:
+- =-1= indicates the first criterion is better (in the sense of that criteria)
+- =1= indicates the second criterion is better
+- =0= indicates both criteria are equal
+* Usage
+The =crit-comp= is described in a parameter map which contains at least the name of the comparison to use. Depending on the comparison, additional parameters may be required
+
+All comparisons return a value among ==:crit1-better=, =:crit1-worst= or =:crit-eq=.
+* Numeric comparisons
+The comparisons below concern numeric values, i.e. when the criteria to compare is a number.
+** smaller
+For =smaller= comparison, the best solutions are the smaller ones:
+#+begin_src clojure
+(require '[auto-opti.crit-comp :as opti-crit])
+
+[(opti-crit/direct-eval {:crit-comp-name :smaller} 12 20)
+ (opti-crit/direct-eval {:crit-comp-name :smaller} 12 12)
+ (opti-crit/direct-eval {:crit-comp-name :smaller} 20 12)]
+;; ==> [-1 0 1]
+#+end_src
+
+#+RESULTS:
+: [-1 0 1]
+** bigger
+For =bigger= comparison, the best solutions are the bigger ones:
+#+begin_src clojure
+(require '[auto-opti.crit-comp :as opti-crit])
+
+[(opti-crit/direct-eval {:crit-comp-name :bigger} 12 20)
+ (opti-crit/direct-eval {:crit-comp-name :bigger} 12 12)
+ (opti-crit/direct-eval {:crit-comp-name :bigger} 20 12)]
+;; ==> [1 0 -1]
+#+end_src
+
+#+RESULTS:
+: [1 0 -1]
+* Map criteria
+The comparisons below concern map criteria, i.e. when the criteria to compare is a map, potentially containing multiple values.
+
+A map criteria is useful for:
+- storing information in the criteria, useful for explanation, debugging, ...
+- enabling multi-criteria, ...
+** hierarchise
+Use =:hierarchise= when many values make the criteria but their relative importance is totally ordered.
+
+Let's consider two criteria:
+#+begin_src clojure
+(def crit1 {:a 13 :b 2 :c 100})
+(def crit2 {:a 13 :b 2 :c 99})
+#+end_src
+A hierarchised comparison of that criteria may be:
+- First compare =crit1= and =crit2= on their =:a= value. =crit1= is better if value is smaller.
+- If there is a tie, compare =crit1= and =crit2= on their =:b= value. =crit1= is better if value is smaller....
+
+If all values are equal, the whole comparison returns equality also.
+
+Using =crit-comp=, you can tell this:
+#+begin_src clojure
+(require '[auto-opti.crit-comp :as opti-crit])
+
+(defn hierarchise-test [crit1 crit2]
+  (opti-crit/direct-eval {:order [{:crit-comp-name :smaller :crit-name :b}
+                                  {:crit-comp-name :smaller :crit-name :a}
+                                  {:crit-comp-name :smaller :crit-name :c}]
+                          :crit-comp-name :hierarchise}
+                         crit1
+                         crit2))
+
+[(hierarchise-test {:a 13 :b 2 :c 100} {:a 13 :b 1 :c 100})
+ (hierarchise-test {:a 13 :b 2 :c 100} {:a 13 :b 2 :c 100})
+ (hierarchise-test {:a 13 :b 2 :c 100} {:a 13 :b 3 :c 103})]
+#+end_src
+
+#+RESULTS:
+: [1 0 -1]
+- The =:order= explains the order in which criteria values are examined. Each value is made of
+  - A =crit-name= defining what key to compare 
+  - The rest of the map being =crit-comp-pars= to define how to compare the corresponding value.
+
+If the =crit-comp-name= is missing or not existing in the registry, and it is required to compare two value (meaning all previous values in the order were ties) the whole result is =nil=.
+** weighted-sum
+A weighted sum of a criteria map multiplies the values of the criteria by some weight. The smaller weight is then better. This is typically used when the criteria is a cost, a time, and that we can translate all values into the criteria.
+#+begin_src clojure
+(require '[auto-opti.crit-comp :as opti-crit])
+
+(def crit-fn
+  (opti-crit/crit-comp-fn {:crit-comp-name :weighted-sum
+                           :weights {:a 10 :b 20}}))
+
+[(crit-fn {:a 0 :b 1}{:a 0 :b 1})
+ (crit-fn {:a 0 :b 1}{:a 10 :b 1})
+ (crit-fn {:a 0 :b 1}{:a -10 :b 1})]
+;=> [0 -1 1]
+#+end_src
+
+#+RESULTS:
+: [0 -1 1]
+
+The weighted sum is mainly defined with the =:weight= attribute which associates a weight to each criterion. When weight are ={:a 10 :b 20}=, it means that ={:a 1 :b 20}= is evaluated to =1*10+20*20\=40=.
+
+Note that:
+- If you'd like the higher weighted sum to be better, simply change weights by their opposite: (={:a 10 :b 20}= is replaced with ={:a -10 :b -20}=).
+- Missing weights are considered `0`.
+
+** Strict
+A criteria is strictly better than another if it is better on all its values. This is particularly useful in multi objectives to remove dominated solutions.
+#+begin_src clojure
+(require '[auto-opti.crit-comp :as opti-crit])
+
+(opti-crit/direct-eval {:crit-comp-name :strict
+                             :crit-names [:b :a]}
+                            {:a 11
+                             :b 15
+                             :c 25}
+                            {:a 10
+                             :b 16
+                             :c 25})
+#+end_src
+
+#+RESULTS:
+: :crit-nc
+
+In other words, a strict comparison is close to a hierarchical one, excepts:
+- the order of the criteria is not important
+- all values are compared, and the comparison returns =:crit-nc= unless all values of a criteria are better
+* Advanced
+** Build your own registry
+The registry implements a wide variety of situations already but you may want to add a new comparison. For this you need to implement:
+#+begin_src clojure
+(require '[auto-opti.crit-comp :as opti-comp])
+
+(def my-registry
+  (-> opti-comp/default-registry
+      (assoc :bigger2
+             {:doc "A naive implementation"
+              :params-schema :nil
+              :f (fn [_]
+                   ;; Potential parameter preparation and precalculations should be done here.
+                   (fn [crit1 crit2]
+                     (cond
+                       (> crit1 crit2) :crit1-better
+                       (= crit1 crit2) :crit-eq
+                       :else :crit1-worst)))})))
+
+(opti-crit/direct-eval {:crit-comp-name :bigger2
+                        :registry my-registry
+                        :crit-names [:b :a]}
+                       10 12)
+#+end_src
+
+#+RESULTS:
+: :crit1-worst
+
+Note the use of your own registry with the =:registry= parameter, note also that the default registry is available and could be overridden or enriched with some new comparisons.
+
+Don't forget:
+- Time optimization: your implementation should be time effecient, as comparisons are called so often
+- Think about compilation time: the returned function should precompute elements as much as possible. 
+
+** Direct-eval
+The =direct-eval= function is mainly intended for demonstration and testing, it is using a crit-comp parameter map to compar both criteria.
+
+Note that this is inefficient when the criteria is used multiple times, which is most often the case in optimisation.
