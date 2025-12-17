@@ -17,7 +17,6 @@
       "If seed is provided"))
 
 (deftest as-int-pair-test
-  (is (nil? (core-schema/validate-data-humanize
-             [:sequential int?]
-             (opt-prng/as-int-pair (opt-prng/xoroshiro128) 10 16)))
+  (is (nil? (core-schema/validate-data-humanize [:sequential int?]
+                                                (opt-prng/as-int-pair (opt-prng/prng {}) 10 16)))
       "Is generated `as-int` actually an Integer."))

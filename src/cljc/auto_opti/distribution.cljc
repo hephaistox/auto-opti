@@ -22,6 +22,7 @@
   [{:keys [registry dstb-name prng params seed prng-name]
     :or {prng-name :xoroshiro128
          dstb-name :uniform
+         seed #uuid "55008b82-85ca-4439-a629-89e227b4a565"
          registry distribution-registry}}]
   (opt-distribution-factory/build registry
                                   dstb-name
@@ -57,3 +58,4 @@
   "Turns a `distribution` into its actual value"
   [dstb]
   (if (number? dstb) dstb (draw dstb)))
+
