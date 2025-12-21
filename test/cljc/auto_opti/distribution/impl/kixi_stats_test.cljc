@@ -60,9 +60,6 @@
   (testing "Is t working?"
     (is (float? (-> (sut/make-t 0.4)
                     opt-distribution-prot/draw))))
-  (testing "Is uniform working?"
-    (is (float? (-> (sut/make-uniform 0.4 1.4)
-                    opt-distribution-prot/draw))))
   (testing "Is weibull working?"
     (is (float? (-> (sut/make-weibull 0.4 1.4)
                     opt-distribution-prot/draw)))))

@@ -4,10 +4,8 @@
   A `tb-var` is a variable than stores one `value` for each `bucket`. You can choose among the following variant `tb-var-additive-deltas`, `tb-var-additive-contiguous`, `tb-var-latest-deltas`, `tb-var-latest-contiguous`, or even build you own as it implements the `opt-tb-protocol`.
 
   The \"`bucket`\" concept is a natural integer (starting at `0`) representing the time in the internals of the simulation.
-  ![Bucket entity diagram](archi/time_based/bucket.png)
 
-  Some `bucket` of a `tb-var` can be grouped in `bucket-aggregate`, note that this `bucket-aggregate` will be seen as the `bucket` of the newly created `tb-var`.
-  ![Bucket aggregate entity diagram](archi/time_based/bucket-aggregate.png)"
+  Some `bucket` of a `tb-var` can be grouped in `bucket-aggregate`, note that this `bucket-aggregate` will be seen as the `bucket` of the newly created `tb-var`."
   (:require
    [auto-opti.time-based.impl.aggregates                  :as opt-tb-aggregates]
    [auto-opti.time-based.impl.aggregator                  :as opt-tb-aggregator]
@@ -127,3 +125,23 @@
   "Creates a `tb-var` using the `aggregator` to store the `values` with aggregateed `bucket`."
   [aggregator time-based]
   (opt-tb-var-aggregated/make time-based aggregator))
+
+(comment
+  (def tb (tb-var-additive-contiguous 0))
+  (def tb2
+    (->> (interleave (range 20) (repeat 2))
+         (partition 2)
+         (reduce (fn [tb [bucket val]] (measure tb bucket val)) tb)
+         (tb-var-aggregated agg)))
+  (validate-aggregates [#::{:start-bucket 0
+                            :step 7}])
+  (def agg
+    (aggregator [#::{:start-bucket 0
+                     :step 7}]))
+  (to-bucket-aggregate agg 1)
+  (to-bucket agg 3)
+  (to-bucket-aggregates agg (range 3 9))
+  (get-measure tb2 20)
+  ;;
+)
+

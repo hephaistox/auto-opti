@@ -75,5 +75,5 @@
   repl {:doc "Clojure repl"
         :override-builtin true
         :requires [[auto-build.tasks.repl :as build-repl] [auto-build.echo :refer [level1-header]]]
-        :task (-> (build-repl/repl level1-header "." (current-task) [:build :cljs-deps] 7003)
+        :task (-> (build-repl/repl level1-header "." (current-task) [:cljs-deps] 7003)
                   exit)}}}

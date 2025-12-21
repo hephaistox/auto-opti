@@ -4,9 +4,7 @@
   * `default-value` is the default value for new or empty buckets, it should be the \"`0`\".
   * If a value is set to an empty bucket, the value is replacing the `default-value`.
   * If a value is already stored in that bucket, it will be added to the existing value.
-  * The values should be numerical to support +.
-
-  ![Aggregate entity diagram](archi/time_based/tb_var_additive.png)"
+  * The values should be numerical to support +."
   (:require
    [auto-opti.time-based.impl.storage-strategy :as opt-tb-ss]
    [auto-opti.time-based.protocol              :as opt-tb-protocol]))

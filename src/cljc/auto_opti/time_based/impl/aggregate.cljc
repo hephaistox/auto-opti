@@ -5,9 +5,7 @@
   * `end-bucket` is the last `bucket` concerned with that aggregate - `end-bucket` is excluded - (`end-bucket ∈ ℕ` or `nil`).
   * `step` is the number of `bucket`s gathered in that `aggregate`, `step  ∈ ℕ*`
 
-  Note that without knowing the other `aggregate` in the `aggregates`, the targeted  `bucket-aggregate` are not fully defined.
-
-  ![Aggregate entity diagram](archi/time_based/aggregate.png)")
+  Note that without knowing the other `aggregate` in the `aggregates`, the targeted  `bucket-aggregate` are not fully defined.")
 
 (def schema
   [:map {:closed true}

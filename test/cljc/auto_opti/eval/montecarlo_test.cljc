@@ -28,19 +28,19 @@
            @x))
       "iterator call"))
 
-(deftest build-valid-test
+(deftest valid-pars-test
   (is (= {:model {:error {:radius ["should be an integer"]
                           :iterations ["should be an integer"]}
                   :schema [:map [:radius :int] [:iterations :int]]
                   :data {:radius "r"
                          :iterations "i"}}}
-         (sut/build-valid {}
-                          nil
-                          {:radius "r"
-                           :iterations "i"}))
+         (sut/valid-pars {}
+                         nil
+                         {:radius "r"
+                          :iterations "i"}))
       "Errors detected.")
-  (is (nil? (sut/build-valid {}
-                             nil
-                             {:radius 10
-                              :iterations 1}))
+  (is (nil? (sut/valid-pars {}
+                            nil
+                            {:radius 10
+                             :iterations 1}))
       "Returns `nil` if valid."))

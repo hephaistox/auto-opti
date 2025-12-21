@@ -1,9 +1,7 @@
 (ns auto-opti.time-based.impl.var-aggregated
   "A `tb-var` storing data through an aggregator.
 
-  Note that the storage strategy and the way values are aggregated is the repsonsability of the `tb-var`.
-
-  ![tb-var-aggregated entity diagram](archi/time_based/tb_var_aggregated.png)"
+  Note that the storage strategy and the way values are aggregated is the repsonsability of the `tb-var`."
   (:require
    [auto-opti.time-based.impl.aggregator :as opt-tb-aggregator]
    [auto-opti.time-based.protocol        :as opt-tb-protocol]))
@@ -22,4 +20,4 @@
         (TbVarAggregated. (opt-tb-protocol/measure tb-var bucket-aggregate value) aggregator)
         this)))
 
-(defn make [time-based translations] (->TbVarAggregated time-based translations))
+(defn make [time-based aggregator] (->TbVarAggregated time-based aggregator))

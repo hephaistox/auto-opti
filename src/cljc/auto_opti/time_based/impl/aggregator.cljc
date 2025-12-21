@@ -1,9 +1,7 @@
 (ns auto-opti.time-based.impl.aggregator
   "An `aggregator` aggregates `bucket` into `bucket-aggregate` and the way back.
 
-  It is composed of `aggregator-item`, matching but completing the data `aggregate`.
-
-  ![Aggregator entity diagram](archi/time_based/aggregator.png)"
+  It is composed of `aggregator-item`, matching but completing the data `aggregate`."
   (:require
    [auto-opti.time-based.impl.aggregator-item :as opt-tb-aggregator-item]))
 

@@ -2,9 +2,7 @@
   "An `aggregator-item` enriches an `aggregate` with `start-bucket-aggregate` and `end-bucket-aggregate`.
   Many `aggregator-item` are contained in an `aggregator`.
 
-  Note that no test mechanisms are here to check values of the `aggregator-item`, the `aggregate` and `aggregates` are here to deal with these tests and are responsible to built some valid `aggregator-item`.
-
-  ![Aggregator-item entity diagram](archi/time_based/aggregator-item.png)")
+  Note that no test mechanisms are here to check values of the `aggregator-item`, the `aggregate` and `aggregates` are here to deal with these tests and are responsible to built some valid `aggregator-item`.")
 
 (defn- bucket-aggregate*
   "`bucket-aggregate` formula based on a `aggregator`."

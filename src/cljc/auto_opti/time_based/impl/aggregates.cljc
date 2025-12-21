@@ -3,9 +3,7 @@
   It is a list of `aggregate` automatically sorted with their `start-bucket`.
   This list is used by a `aggregator-item` to create the `aggregator`.
 
-  See the [[aggregator]] function, for details about the aggregation rules.
-
-  ![Aggregates entity diagram](archi/time_based/aggregates.png)"
+  See the [[aggregator]] function, for details about the aggregation rules."
   (:require
    [auto-core.schema                          :as core-schema]
    [auto-opti.time-based.impl.aggregate       :as opt-tb-aggregate]

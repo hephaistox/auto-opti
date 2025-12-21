@@ -1,0 +1,121 @@
+#+title: Time Based
+
+Time based variables (so called =tb-var=) are storing informations relative to time. It is useful in many different situations. You may want to store the best value found so far during an optimization, the stock level during a simulation, the number of produced items, ... There is a variety of situations and expected behaviors and =tb-var= not only aim to store and manipulate them but it offers also a good starting point for reporting and all kind of rendering.
+* Quick start
+The example below models data like stock entry: 
+#+begin_src clojure
+(require '[auto-opti.time-based :as opti-tb])
+
+(-> (opti-tb/tb-var-additive-deltas)
+    (opti-tb/measure 3 7)
+    (opti-tb/measure 1 4)
+    (opti-tb/measure 1 10)
+    (opti-tb/get-measures [0 1 2]))
+;; => [0 14 0]
+#+end_src
+
+#+RESULTS:
+: [0 14 0]
+
+In the example above, three measures are added. Note that:
+- two values are added at bucket =1=, the returned value is the sum of them: =14=
+- buckets were no data has been added returns =0=.
+- the =tb-var-additive-deltas= is typically useful for production, when each measure correspond to a new group of items produced.
+  
+The next example is useful for a stock level. When a data is added in a bucket, it is the value for all following buckets, unless a new value is inserted in between.
+#+begin_src clojure
+(require '[auto-opti.time-based :as opti-tb])
+
+(-> (opti-tb/tb-var-latest-deltas 0)
+    (opti-tb/measure 5 7)
+    (opti-tb/measure 1 4)
+    (opti-tb/measure 1 10)
+    (opti-tb/get-measures [0 1 4 40]))
+;; => [0 10 10 7]
+#+end_src
+
+#+RESULTS:
+: [0 10 10 7]
+
+In the example above, four measures are added. Note that:
+- measure are not added in a chronological order, however the =4= added at bucket =1= is not replacing the already added value at bucket =5=
+- when two values are added at the same bucket (like =1=), only the last measure is kept (=10= in the example)
+- =get-measure= applied to buckets before the first measure are returning the default value: =0=,
+- bucket =4= returns the measure done at bucket =1= as it is the latest value measured
+* Details
+Variants of time based variables depends on the behavior of the measure and how it is internally stored.
+
+What we call behavior is what a measure implies regarding same bucket insertion and what is hapenning in next buckets:
+- Additive tb-var are added, each value put in a bucket is added to it, aggregated buckets adds their values, and the value put in a bucket has no impact on the following buckets
+- Latest tb-var are different, only the latest value is kept (latest in terms of bucket), aggregated buckets keep the latest value of the bucket and the value put in a bucket is the value for all next buckets unless another value is added.
+
+Moreover, there are also different ways to store the data in the =tb-var=:
+- =deltas= are used for scarce data, when there are few points among the buckets which are concerned with a value change
+- =contiguous= is closer to a regular array. It is more efficient for variables with dense value changes.
+** tb-var-additive-deltas
+Creates an =additive= =tb-var= storing the values with =deltas=.
+
+Data that are additive over buckets:
+- =default-value= is the default value for new or empty buckets, it should be the =0= of your =+= operator.
+- If a value is set to an empty bucket, the value is replacing the =default-value=.
+- If a value is already stored in that bucket, it will be added to the existing value.
+- The values should be numerical (they should support =+=).
+
+  For instance, a production is additive, since a new production recorded in the same scenario-time is added to the previous auto-opti.time-based.impl.additive.
+
+  This form is optimized for variables that has few values over the horizon, as it is storing only deltas, so only change in the value.
+** Default
+Returns the default value for that =tb-var=.
+** Measures
+A measure is a pair of a value and a bucket. As described in previous section, its intention, its meaning is different regarding the type of =tb-var= you've built. For example, we discusses =additive= and =latest= strategy.
+
+When a measure, call the =measure= function, use =get-measures= to have values back:
+#+begin_src clojure
+(require '[auto-opti.time-based :as opti-tb])
+
+(-> (opti-tb/tb-var-latest-deltas 0)
+    (opti-tb/measure 5 7)
+    (opti-tb/get-measures [3 4 5 6 7]))
+;; => [0 0 7 7 7]
+#+end_src
+
+#+RESULTS:
+: [0 0 7 7 7]
+
+Note that:
+- Buckets with no data returns the default value
+- =get-measures=  has a list of buckets, of course you can replace this with a =(range 10)= if you'd like all buckets between =0= and =10=.
+** Aggregator
+Use an aggregator to group bucket of times. For instance, you have some measures done at the day level but you'd like to compute a weekly value. Build an aggregator
+#+begin_src clojure
+(require '[auto-opti.time-based :as opti-tb])
+
+(def tb
+  (opti-tb/tb-var-latest-deltas 0))
+
+[5 7 ]
+(iterate vely )
+(opti-tb/measure tb 5 7)
+#+end_src
+
+#+RESULTS:
+: #auto_opti.time_based.impl.var_latest.TbVarLatest{:storage #auto_opti.time_based.impl.storage_strategy.deltas.DeltaStrategy{:deltas {5 7}}, :default-value 0}
+
+** Types
+All data are stored with the type you put in it:
+#+begin_src clojure
+(require '[auto-opti.time-based :as opti-tb])
+
+(mapv type
+      (-> (opti-tb/tb-var-latest-deltas 0)
+          (opti-tb/measure 10 1)
+          (opti-tb/measure 11 10/3)
+          (opti-tb/measure 12 10.33)
+          (opti-tb/get-measures [10 11 12])))
+;; => [java.lang.Long clojure.lang.Ratio java.lang.Double]
+#+end_src
+
+#+RESULTS:
+: [java.lang.Long clojure.lang.Ratio java.lang.Double]
+
+Note that the type of data store in the =tb-var= completly depends on what you've set in it. Even better, the values may be heterogneous. Of course, when you start to manipulate them (like aggregation, average, ...), you may affect the type of numerical values. It is user responsability to force it again if needed.

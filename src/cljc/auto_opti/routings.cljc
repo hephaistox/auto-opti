@@ -27,7 +27,7 @@
   All distributions are using `prng`."
   [model prng]
   (let [{:keys [routes]} model
-        dstb-fn (partial opt-dstb/dstb prng)]
+        dstb-fn (partial opt-dstb/distribution prng)]
     (-> model
         (assoc :route-dstb
                (dstb-fn {:dstb-name :categorical

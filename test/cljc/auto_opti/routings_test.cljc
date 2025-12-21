@@ -1,8 +1,8 @@
 (ns auto-opti.routings-test
   (:require
-   [auto-opti.distribution     :as opt-dstb]
-   [auto-opti.prng     :as opt-prng]
-   [auto-opti.routings :as sut]
+   [auto-opti.distribution :as opt-dstb]
+   [auto-opti.prng         :as opt-prng]
+   [auto-opti.routings     :as sut]
    #?(:clj [clojure.test :refer [deftest is]]
       :cljs [cljs.test :refer [deftest is] :include-macros true])))
 
@@ -18,7 +18,7 @@
                        :categories {}
                        :total-weight 0}}
          (-> {:routes {}}
-             (sut/start (opt-prng/xoroshiro128 #uuid "e85427c1-ed25-4ed4-9b11-52238d268265"))
+             (sut/start (opt-prng/prng {:seed #uuid "e85427c1-ed25-4ed4-9b11-52238d268265"}))
              (update :route-dstb #(into {} %))
              (update-in [:route-dstb :prng] some?))))
   (is
@@ -49,7 +49,8 @@
                       :operations [{:pt {:dstb-name :uniform
                                          :a 10
                                          :b 15}}]}}}
-        (sut/start (opt-prng/xoroshiro128 #uuid "e85427c1-ed25-4ed4-9b11-52238d268265"))
+        (sut/start (opt-prng/prng {:prng-name :xoroshiro128
+                                   :seed #uuid "e85427c1-ed25-4ed4-9b11-52238d268265"}))
         (update :route-dstb #(into {} %))
         (update-in [:route-dstb :prng] some?)
         (update :routes
@@ -71,7 +72,8 @@
          (-> {:routes {:a {:route-id :a
                            :probability 0.3
                            :operations [{:pt 1}]}}}
-             (sut/start (opt-prng/xoroshiro128 #uuid "e85427c1-ed25-4ed4-9b11-52238d268265"))
+             (sut/start (opt-prng/prng {:seed #uuid "e85427c1-ed25-4ed4-9b11-52238d268265"
+                                        :prng-name :xoroshiro128}))
              (update :route-dstb #(into {} %))
              (update-in [:route-dstb :prng] some?)))
       "An operation with an integer only"))
@@ -80,20 +82,22 @@
 
 (deftest pick-route-id-test
   (is (= :b
-         (sut/pick-route-id {:routes {:a {:operations [{:m :m4
-                                                        :pt {:dstb-name :normal
-                                                             :location 20
-                                                             :scale 0.2}}]
-                                          :id :a
-                                          :category-probability 0.2}
-                                      :b {:operations [{:m :m1
-                                                        :pt {:dstb-name :normal
-                                                             :location 10
-                                                             :scale 0.2}}]
-                                          :id :b
-                                          :category-probability 0.2}}
-                             :route-dstb (opt-dstb/dstb (opt-prng/xoroshiro128 u)
-                                                        {:dstb-name :categorical
-                                                         :category-probabilities {:a 0.5
-                                                                                  :b 1}})}))
+         (sut/pick-route-id
+          {:routes {:a {:operations [{:m :m4
+                                      :pt {:dstb-name :normal
+                                           :location 20
+                                           :scale 0.2}}]
+                        :id :a
+                        :category-probability 0.2}
+                    :b {:operations [{:m :m1
+                                      :pt {:dstb-name :normal
+                                           :location 10
+                                           :scale 0.2}}]
+                        :id :b
+                        :category-probability 0.2}}
+           :route-dstb (opt-dstb/distribution (opt-prng/prng {:prng-name :xoroshiro128
+                                                              :seed u})
+                                              {:dstb-name :categorical
+                                               :category-probabilities {:a 0.5
+                                                                        :b 1}})}))
       "Pick one"))

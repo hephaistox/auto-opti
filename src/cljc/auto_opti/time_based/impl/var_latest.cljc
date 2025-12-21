@@ -6,9 +6,7 @@
   * The values can be whatever, as no operation is done on it.
 
   For instance, a stock level is such, since a new stock level will be recorded at that moment.
-  Note that the order of the measures is not significant.
-
-  ![tb var latest entity diagram](archi/time_based/tb_var_latest.png)"
+  Note that the order of the measures is not significant."
   (:require
    [auto-opti.time-based.impl.storage-strategy :as opt-tb-ss]
    [auto-opti.time-based.protocol              :as opt-tb-protocol]))
