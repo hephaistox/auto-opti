@@ -1,6 +1,6 @@
 (ns auto-opti.distribution.impl.normal-test
   (:require
-   [auto-opti.distribution             :as opt-distribution-prot]
+   [auto-opti.distribution             :as opt-dstb]
    [auto-opti.distribution.impl.normal :as sut]
    [auto-opti.maths                    :as opt-maths]
    [auto-opti.prng.impl.xoroshiro128   :as opt-prng-xoro]
@@ -13,42 +13,42 @@
   (is (= 9.673475985627203
          (-> (opt-prng-xoro/make uuid-stub)
              (sut/make 2.0 3.0)
-             opt-distribution-prot/draw))
+             opt-dstb/draw))
       "Draw returns an integer"))
 
 (deftest median-test
   (is (= 2.0
          (-> (opt-prng-xoro/make uuid-stub)
              (sut/make 2.0 3.0)
-             opt-distribution-prot/median))
+             opt-dstb/median))
       "Is the median of exponential 2 is 0"))
 
 (deftest cumulative-test
   (is (opt-maths/approx= 0.0001
                          (-> (opt-prng-xoro/make uuid-stub)
                              (sut/make 2.0 3.0)
-                             (opt-distribution-prot/cumulative 0.4))
+                             (opt-dstb/cumulative 0.4))
                          0.2969)
       "Cumulative"))
 
 (deftest minimun-test
   (is (-> (opt-prng-xoro/make uuid-stub)
           (sut/make 2.0 3.0)
-          opt-distribution-prot/minimum
+          opt-dstb/minimum
           opt-maths/infinite?)
       "Minimum"))
 
 (deftest maximun-test
   (is (-> (opt-prng-xoro/make uuid-stub)
           (sut/make 2.0 3.0)
-          opt-distribution-prot/maximum
+          opt-dstb/maximum
           opt-maths/infinite?)
       "Maximum"))
 
 (deftest quantile-test
   (is (double? (-> (opt-prng-xoro/make uuid-stub)
                    (sut/make 2.0 3.0)
-                   (opt-distribution-prot/quantile 0.3)))
+                   (opt-dstb/quantile 0.3)))
       "Quantile"))
 
 (def assembly-test-res
@@ -75,7 +75,7 @@
          (let [t (-> (opt-prng-xoro/make uuid-stub)
                      (sut/make 200 2.0))]
            (->> (repeat 20000 t)
-                (mapv #(int (opt-distribution-prot/draw %)))
+                (mapv #(int (opt-dstb/draw %)))
                 frequencies)))))
 
 (comment
@@ -96,42 +96,42 @@
   (is (= 9
          (-> (opt-prng-xoro/make uuid-stub)
              (sut/make-integer 2.0 3.0)
-             opt-distribution-prot/draw))
+             opt-dstb/draw))
       "Draw returns an integer"))
 
 (deftest median-integer-test
   (is (= 2.0
          (-> (opt-prng-xoro/make uuid-stub)
              (sut/make-integer 2.0 3.0)
-             opt-distribution-prot/median))
+             opt-dstb/median))
       "Is the median of exponential 2 is 0"))
 
 (deftest cumulative-integer-test
   (is (opt-maths/approx= 0.0001
                          (-> (opt-prng-xoro/make uuid-stub)
                              (sut/make-integer 2.0 3.0)
-                             (opt-distribution-prot/cumulative 3))
+                             (opt-dstb/cumulative 3))
                          0.6305)
       "Cumulative"))
 
 (deftest minimun-integer-test
   (is (-> (opt-prng-xoro/make uuid-stub)
           (sut/make-integer 2.0 3.0)
-          opt-distribution-prot/minimum
+          opt-dstb/minimum
           opt-maths/infinite?)
       "Minimum"))
 
 (deftest maximun-integer-test
   (is (-> (opt-prng-xoro/make uuid-stub)
           (sut/make-integer 2.0 3.0)
-          opt-distribution-prot/maximum
+          opt-dstb/maximum
           opt-maths/infinite?)
       "Maximum"))
 
 (deftest quantile-integer-test
-  (is (double? (-> (opt-prng-xoro/make uuid-stub)
-                   (sut/make-integer 2.0 3.0)
-                   (opt-distribution-prot/quantile 0.3)))
+  (is (integer? (-> (opt-prng-xoro/make uuid-stub)
+                    (sut/make-integer 2.0 3.0)
+                    (opt-dstb/quantile 0.4)))
       "Quantile"))
 
 (def assembly-integer-test-res
@@ -158,7 +158,7 @@
          (let [t (-> (opt-prng-xoro/make uuid-stub)
                      (sut/make-integer 200 2.0))]
            (->> (repeat 20000 t)
-                (mapv #(int (opt-distribution-prot/draw %)))
+                (mapv #(int (opt-dstb/draw %)))
                 frequencies)))))
 
 (comment

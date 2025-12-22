@@ -19,17 +19,16 @@
   * `params` the parameters of that distribution, check `dstb-name` definition to know what parameters are necessary.,
   * `seed` if no `prng` is provided, it is built with `seed`,
   * `prng-name` the pseudo random number generator that is used to generate the distribution."
-  [{:keys [registry dstb-name prng params seed prng-name]
-    :or {prng-name :xoroshiro128
-         dstb-name :uniform
-         seed #uuid "55008b82-85ca-4439-a629-89e227b4a565"
-         registry distribution-registry}}]
-  (opt-distribution-factory/build registry
-                                  dstb-name
-                                  (or prng
-                                      (opt-prng/prng (cond-> {:prng-name prng-name}
-                                                       seed (assoc :seed seed))))
-                                  params))
+  [params]
+  (if (map? params)
+    (let [{::keys [registry dstb-name prng seed prng-name]} params]
+      (opt-distribution-factory/build (or registry distribution-registry)
+                                      (or dstb-name :uniform)
+                                      (or prng
+                                          (opt-prng/prng #::opt-prng{:prng-name prng-name
+                                                                     :seed seed}))
+                                      params))
+    params))
 
 (defn draw
   "Returns a random value following the `distribution`."

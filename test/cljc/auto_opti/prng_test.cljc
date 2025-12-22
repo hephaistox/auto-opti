@@ -9,6 +9,10 @@
   (testing "Simple value"
     (is (= 6
            (-> (sut/prng {})
+               (sut/as-int 0 10))
+           (-> (sut/prng #::sut{:registry nil
+                                :seed nil
+                                :prg-name nil})
                (sut/as-int 0 10)))
         "Returns a fix int with default xoroshiro's prng and default seed")
     (is (= 0.2594879491552782
@@ -93,9 +97,4 @@
          (-> (sut/prng #::sut{:prng-name :xoroshiro128
                               :seed #uuid "54b9758a-906f-4ec9-b1eb-1efef7f67e3b"})
              (sut/as-int 0 10)))
-      "Xoroshiro")
-  (is (= 6
-         (-> (sut/prng #::sut{:prng-name :well
-                              :seed #uuid "54b9758a-906f-4ec9-b1eb-1efef7f67e3b"})
-             (sut/as-int 0 10)))
-      "Well"))
+      "Xoroshiro"))

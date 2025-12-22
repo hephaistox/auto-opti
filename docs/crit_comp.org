@@ -1,5 +1,5 @@
 #+title: Crit Comp
-In mathematical and computer science modelling, two solutions are compared with one or many criteria. This namespace contains helpers to model criteria to be used in optimisation and user interface.
+In mathematical and computer science modelling, the comparison of two solutions use one or many criteria. This namespace contains helpers to model criteria to be used in optimisation and user interface.
 * Why another criteria library?
 The main reasons are:
 - When dealing with criteria optimisation, [[file:design_decisions.org][decision 1]] implies being able to switch easily from one criteria to another.
@@ -44,6 +44,7 @@ For =smaller= comparison, the best solutions are the smaller ones:
 
 #+RESULTS:
 : [-1 0 1]
+
 ** bigger
 For =bigger= comparison, the best solutions are the bigger ones:
 #+begin_src clojure
@@ -57,6 +58,7 @@ For =bigger= comparison, the best solutions are the bigger ones:
 
 #+RESULTS:
 : [1 0 -1]
+
 * Map criteria
 The comparisons below concern map criteria, i.e. when the criteria to compare is a map, potentially containing multiple values.
 
@@ -96,6 +98,7 @@ Using =crit-comp=, you can tell this:
 
 #+RESULTS:
 : [1 0 -1]
+
 - The =:order= explains the order in which criteria values are examined. Each value is made of
   - A =crit-name= defining what key to compare 
   - The rest of the map being =crit-comp-pars= to define how to compare the corresponding value.

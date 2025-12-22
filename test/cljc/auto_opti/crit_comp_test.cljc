@@ -180,7 +180,3 @@
     (is (= :crit1-worst (sut/direct-eval {:crit-comp-name :bigger} 12 20)) "crit2 is bigger")
     (is (= :crit-eq (sut/direct-eval {:crit-comp-name :bigger} 12 12)) "criteria are equal")
     (is (= :crit1-better (sut/direct-eval {:crit-comp-name :bigger} 20 12)) "crit1 is bigger")))
-
-
-
-

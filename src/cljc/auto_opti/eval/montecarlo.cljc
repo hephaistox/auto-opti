@@ -3,7 +3,7 @@
   (:refer-clojure :exclude [eval])
   (:require
    [auto-core.schema       :as opt-schema]
-   [auto-opti.distribution :as opt-distribution]))
+   [auto-opti.distribution :as opt-dstb]))
 
 (defn eval
   "`x` and `y` are drawn in an uniform distribution in `[-radius;radius]` interval.
@@ -26,10 +26,10 @@
    {:keys [seed]
     :as _rep}]
   (let [radius-square (* radius radius)
-        unif-dst (opt-distribution/distribution {:dstb-name :uniform
-                                                 :seed seed
-                                                 :params {:a (- radius)
-                                                          :b radius}})]
+        unif-dst (opt-dstb/distribution #::opt-dstb{:dstb-name :uniform
+                                                    :seed seed
+                                                    :a (- radius)
+                                                    :b radius})]
     (when (number? iterations)
       (loop [it iterations
              nb-in 0
@@ -41,8 +41,8 @@
                                                  (-> (/ nb-in nb-total)
                                                      (* 4.0)))
                         :iterations iterations}))
-        (let [x (opt-distribution/draw unif-dst)
-              y (opt-distribution/draw unif-dst)
+        (let [x (opt-dstb/draw unif-dst)
+              y (opt-dstb/draw unif-dst)
               in-circle? (<= (+ (* x x) (* y y)) radius-square)]
           (if (pos? it)
             (recur (dec it) (if in-circle? (inc nb-in) nb-in) (inc nb-total))

@@ -17,11 +17,11 @@
 (defn prng
   "Creates a `prng` based on a parameter map."
   [{::keys [prng-name seed registry]
-    :or {seed #uuid "54b9758a-906f-4ec9-b1eb-1efef7f67e3b"
-         prng-name :xoroshiro128
-         registry prng-registry}
     :as params}]
-  (when-let [prng-builder (get registry prng-name)] (prng-builder (assoc params ::seed seed))))
+  (let [prng-name (or prng-name :xoroshiro128)
+        registry (or registry prng-registry)]
+    (when-let [prng-builder (get registry prng-name)]
+      (prng-builder (assoc params ::seed (or seed #uuid "54b9758a-906f-4ec9-b1eb-1efef7f67e3b"))))))
 
 (defn duplicate
   "Duplicates this prng to a new one, starting at the seed value."

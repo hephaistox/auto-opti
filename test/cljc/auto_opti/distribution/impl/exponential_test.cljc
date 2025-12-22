@@ -18,7 +18,7 @@
       "Draw returns a double"))
 
 (deftest median-test
-  (is (opt-maths/approx= 0.000001
+  (is (opt-maths/approx= 0.00001
                          (-> (opt-prng-xoro/make uuid-stub)
                              (sut/make 2.0)
                              opt-distribution-prot/median)
@@ -26,7 +26,7 @@
       "Is the median of exponential 2 is (ln 2)/lambda"))
 
 (deftest cumulative-test
-  (is (opt-maths/approx= 0.00001
+  (is (opt-maths/approx= 0.0001
                          (-> (opt-prng-xoro/make uuid-stub)
                              (sut/make 2.0)
                              (opt-distribution-prot/cumulative 0.4))

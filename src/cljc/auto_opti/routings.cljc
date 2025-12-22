@@ -10,7 +10,7 @@
 
 (defn machines
   "Sorted list of machines"
-  [{:keys [routes]
+  [{::keys [routes]
     :as _model}]
   (->> routes
        vals
@@ -26,28 +26,32 @@
   Data are turned into distributions.
   All distributions are using `prng`."
   [model prng]
-  (let [{:keys [routes]} model
-        dstb-fn (partial opt-dstb/distribution prng)]
+  (let [{::keys [routes]} model]
     (-> model
-        (assoc :route-dstb
-               (dstb-fn {:dstb-name :categorical
-                         :category-probabilities (update-vals routes #(get % :probability 1))}))
-        (update :routes
+        (assoc ::route-dstb
+               (opt-dstb/distribution #::opt-dstb{:dstb-name :categorical
+                                                  :prng prng
+                                                  :category-probabilities
+                                                  (update-vals routes #(get % :probability 1))}))
+        (update ::routes
                 (fn [routes]
                   (->> routes
                        (mapv (fn [[route-id route]]
                                [route-id
                                 (-> route
                                     (assoc :route-id route-id)
-                                    (update :operations
-                                            (fn [operations]
-                                              (->> operations
-                                                   (mapv (fn [operation]
-                                                           (-> operation
-                                                               (update :pt dstb-fn))))))))]))
+                                    (update
+                                     :operations
+                                     (fn [operations]
+                                       (->> operations
+                                            (mapv (fn [operation]
+                                                    (-> operation
+                                                        (update :pt opt-dstb/distribution))))))))]))
                        (into {})))))))
 
 (defn pick-route-id
   "Pick one route-id based on `route-dstb`"
   [model]
-  (let [{:keys [route-dstb]} model] (when (seq (:routes model)) (opt-dstb/resolve route-dstb))))
+  (-> model
+      ::route-dstb
+      opt-dstb/resolve))
