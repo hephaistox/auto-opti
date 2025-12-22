@@ -11,7 +11,8 @@
    [xoroshiro128.core                :as xoro]))
 
 (deftest xoro-test
-  (is (opt-prng-stateless-test/test-all (sut/make-stateless))
+  (is (opt-prng-stateless-test/test-all (sut/make-stateless
+                                         #uuid "e8971453-69c4-499f-a010-53e1e145ee7f"))
       "Stateless tests for xoro are passing"))
 
 (deftest test-uniformity-test

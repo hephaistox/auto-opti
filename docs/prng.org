@@ -35,7 +35,7 @@ Function =prng= creates a =PRNG= based on the parameter map, that has default va
           (opti-prng/as-int prng* 10 100))
         (= 89
           (opti-prng/as-int prng* 10 100)))
-;; => [true true true]
+;; ==> [true true true]
 #+end_src
 
 #+RESULTS:
@@ -55,7 +55,7 @@ After the =PRNG= creation, use =as-int= to create an integer or =as-double= to c
 
 (vector (opti-prng/as-int prng* 10 100)
         (opti-prng/as-double prng* 10.0 100.0))
-;; => [56 62.28426460501133]
+;; ==> [56 62.28426460501133]
 #+end_src
 
 #+RESULTS:
@@ -89,7 +89,7 @@ The =as-ints= and =as-doubles= functions are helpers to return more than one val
 
 (vector (opti-prng/as-ints prng* 3 10 100)
         (opti-prng/as-doubles prng* 3 10.0 100.0))
-;; => [(56 59 89) (44.32935272914683 47.020137246995276 99.99216829772887)]
+;; ==> [(56 59 89) (44.32935272914683 47.020137246995276 99.99216829772887)]
 #+end_src
 
 #+RESULTS:
@@ -116,7 +116,7 @@ You can first use the same =seed= for two different =PRNG=, so they both return 
         (opti-prng/as-double prng* 10.0 100.0)
         (opti-prng/as-int prng2* 10 100)
         (opti-prng/as-double prng2* 10.0 100.0))
-: [56 62.28426460501133 56 62.28426460501133]
+;; ==> [56 62.28426460501133 56 62.28426460501133]
 #+end_src
 
 #+RESULTS:
@@ -142,7 +142,7 @@ A =PRNG= that is used with duplicate is starting again from the same seed and re
         (vector
          (opti-prng/as-int prng2* 10 100)
          (opti-prng/as-double prng2* 10.0 100.0)))
-;; => [[56 62.28426460501133] [56 62.28426460501133]]
+;; ==> [[56 62.28426460501133] [56 62.28426460501133]]
 #+end_src
 
 #+RESULTS:
@@ -172,7 +172,7 @@ With =uuid-seed= you can extract a =PRNG= seed and start again the pseudo random
         (vector
          (opti-prng/as-int prng2* 10 100)
          (opti-prng/as-double prng2* 10.0 100.0)))
-;; => [[56 62.28426460501133] [56 62.28426460501133]]
+;; ==> [[56 62.28426460501133] [56 62.28426460501133]]
 #+end_src
 
 #+RESULTS:
@@ -199,7 +199,7 @@ The =reset= function returns the =PRNG= to the initial state it had when created
         (vector
          (opti-prng/as-int prng2* 10 100)
          (opti-prng/as-double prng2* 10.0 100.0)))
-;; => [[56 62.28426460501133] [56 62.28426460501133]]
+;; ==> [[56 62.28426460501133] [56 62.28426460501133]]
 #+end_src
 
 #+RESULTS:
@@ -235,7 +235,7 @@ For robust randomness, specify both =prng-name= and =seed=:
 
 (vector (opti-prng/as-int prng* 10 100)
         (opti-prng/as-double prng* 10.0 100.0))
-;; => [56 62.28426460501133]
+;; ==> [56 62.28426460501133]
 #+end_src
 
 #+RESULTS:
@@ -245,7 +245,7 @@ For robust randomness, specify both =prng-name= and =seed=:
 ** Create your own =PRNG= 
 You can add some new prngs in the existing registry and then leverage the library's features.
 
-For this, you need to create your generator first, it should implement the =auto-opti.prng/stateful/PRNG='s interface. Then, you should include your =PRNG= to the regirstry and use it.
+For this, you need to create your generator first, it should implement the =auto-opti.prng/stateful/PRNG='s interface. Then, you should include your =PRNG= to the registry (called =opti-prng/prng-registry=) and use it.
 
 #+begin_src clojure
 (require '[auto-opti.prng :as opti-prng])
@@ -267,16 +267,17 @@ For this, you need to create your generator first, it should implement the =auto
   (-> opti-prng/prng-registry
       (assoc :my-generator (fn [_] (->My-PRNG)))))
 
- (def prng
-   (-> #::opti-prng{:prng-name :my-generator
-                    :registry my-registry
-                    :seed "54b9758a-906f-4ec9-b1eb-1efef7f67e3b" }
-        opti-prng/prng))
-  prng
+(def my-prng
+  (-> #::opti-prng{:prng-name :my-generator
+                   :registry my-registry
+                   :seed "54b9758a-906f-4ec9-b1eb-1efef7f67e3b"}
+      opti-prng/prng))
+
+my-prng
 #+end_src
 
 #+RESULTS:
-: #auto_opti.prng.impl.built_in.My-PRNG{}
+: #auto_opti.prng.stateful_wrapper.PrngStatefulImpl{:stateless-prng #atom[#Xoroshiro128{:xoro-object #object[xoroshiro128.xoroshiro128.Xoroshiro128+ 0x8df1e86 "xoroshiro128.xoroshiro128.Xoroshiro128+@8df1e86"], :uuid-seed #uuid "54b9758a-906f-4ec9-b1eb-1efef7f67e3b"}], :original-prng #auto_opti.prng.impl.xoroshiro128.Xoroshiro128{:xoro-object #object[xoroshiro128.xoroshiro128.Xoroshiro128+ 0x8df1e86 "xoroshiro128.xoroshiro128.Xoroshiro128+@8df1e86"], :uuid-seed #uuid "54b9758a-906f-4ec9-b1eb-1efef7f67e3b"}}
 
 ** Jump
 With =jump=, one can improve values statistical independance like the =PRNG= state is a complete different seed. Most best in class =PRNG= implementation offer a proper way to do this effeciently. And it's =PRNG= implementer's concern to do it.

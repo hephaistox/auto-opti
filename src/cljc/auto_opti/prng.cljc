@@ -1,8 +1,9 @@
 (ns auto-opti.prng
   "Pseudo random number generator.
 
-  This protocol hides the complexity of the different random number generator. As many different implementations exists and none superseeds all others."
+  Use this feature to build a `prng` based on a parameter map. This hides the complexity of the different random number generator, as many different implementations exists and none superseeds all others."
   (:require
+   [auto-opti                        :as-alias opti]
    [auto-opti.prng.impl.built-in     :as opt-prng-built-in]
    [auto-opti.prng.impl.xoroshiro128 :as opt-prng-xoro]
    [auto-opti.prng.stateful          :as opt-prng-stateful]))
@@ -10,18 +11,20 @@
 (def prng-registry
   "Registry of prngs, with a function turning a seed into an implementation of `opt-prng-stateful/PRNG`."
   {:xoroshiro128
-   (fn [{::keys [seed]}]
+   (fn [{::opti/keys [seed]}]
      (if (string? seed) (opt-prng-xoro/make (parse-uuid seed)) (opt-prng-xoro/make seed)))
    :built-in (fn [_] (opt-prng-built-in/make))})
-
+:64-bit
+;;TODO Add metadata to describe the prng: accept-seed, :64-bit, :crosspf?
 (defn prng
   "Creates a `prng` based on a parameter map."
-  [{::keys [prng-name seed registry]
+  [{::opti/keys [prng-name seed registry]
     :as params}]
   (let [prng-name (or prng-name :xoroshiro128)
         registry (or registry prng-registry)]
     (when-let [prng-builder (get registry prng-name)]
-      (prng-builder (assoc params ::seed (or seed #uuid "54b9758a-906f-4ec9-b1eb-1efef7f67e3b"))))))
+      (prng-builder
+       (assoc params ::opti/seed (or seed #uuid "54b9758a-906f-4ec9-b1eb-1efef7f67e3b"))))))
 
 (defn duplicate
   "Duplicates this prng to a new one, starting at the seed value."
@@ -74,4 +77,3 @@
   [prng n min-double max-double]
   (when (and min-double max-double n)
     (repeatedly n #(opt-prng-stateful/rnd-double prng min-double max-double))))
-

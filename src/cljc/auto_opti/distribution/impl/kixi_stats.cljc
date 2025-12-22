@@ -102,13 +102,6 @@
     (->Kixi (kixi.stats.distribution/multinomial {:n n
                                                   :probs probs}))))
 
-(defn make-normal
-  "Returns a normal distribution. `{:location ∈ ℝ, :scale ∈ ℝ > 0}`."
-  [location scale]
-  (when (and (number? location) (number? scale) (pos? scale))
-    (->Kixi (kixi.stats.distribution/normal {:location location
-                                             :scale scale}))))
-
 (defn make-pareto
   "Returns a Pareto distribution. `{:scale ∈ ℝ > 0, :shape ∈ ℝ > 0}`."
   [scale shape]

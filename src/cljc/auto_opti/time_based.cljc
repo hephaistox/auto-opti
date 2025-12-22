@@ -7,6 +7,7 @@
 
   Some `bucket` of a `tb-var` can be grouped in `bucket-aggregate`, note that this `bucket-aggregate` will be seen as the `bucket` of the newly created `tb-var`."
   (:require
+   [auto-opti                                             :as-alias opti]
    [auto-opti.time-based.impl.aggregates                  :as opt-tb-aggregates]
    [auto-opti.time-based.impl.aggregator                  :as opt-tb-aggregator]
    [auto-opti.time-based.impl.storage-strategy.contiguous :as opt-tb-contiguous]
@@ -133,11 +134,11 @@
          (partition 2)
          (reduce (fn [tb [bucket val]] (measure tb bucket val)) tb)
          (tb-var-aggregated agg)))
-  (validate-aggregates [#::{:start-bucket 0
-                            :step 7}])
+  (validate-aggregates [#::opti{:start-bucket 0
+                                :step 7}])
   (def agg
-    (aggregator [#::{:start-bucket 0
-                     :step 7}]))
+    (aggregator [#::opti{:start-bucket 0
+                         :step 7}]))
   (to-bucket-aggregate agg 1)
   (to-bucket agg 3)
   (to-bucket-aggregates agg (range 3 9))

@@ -3,7 +3,7 @@
    [auto-core.schema                             :as core-schema]
    #?@(:clj [[clojure.test :refer [deftest is]]]
        :cljs [[cljs.test :refer [deftest is] :include-macros true]])
-   [auto-opti.distribution                       :as-alias opt-dist]
+   [auto-opti                                    :as-alias opti]
    [auto-opti.distribution.distribution-protocol :as opt-dstb-prot]
    [auto-opti.distribution.registry              :as sut]
    [auto-opti.prng                               :as opt-prng]))
@@ -15,8 +15,8 @@
          (-> ((-> sut/registry
                   :uniform-int)
               (opt-prng/prng {})
-              #::opt-dist{:a 13
-                          :b 24})
+              #::opti{:a 13
+                      :b 24})
              opt-dstb-prot/draw))
       "Uniform int check"))
 

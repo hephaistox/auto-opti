@@ -29,14 +29,11 @@
 
 (defn make-stateless
   "With the optional `uuid` parameter used as a seed, the stateless version of the xoroshiro prng is generated."
-  ([uuid-seed]
-   (when (uuid? uuid-seed)
-     (->Xoroshiro128 (xoro/xoroshiro128+ (xoro/uuid->seed128 uuid-seed)) uuid-seed)))
-  ([]
-   (let [uuid-seed (random-uuid)]
-     (->Xoroshiro128 (xoro/xoroshiro128+ (xoro/uuid->seed128 uuid-seed)) uuid-seed))))
+  [uuid-seed]
+  (when (uuid? uuid-seed)
+    (->Xoroshiro128 (xoro/xoroshiro128+ (xoro/uuid->seed128 uuid-seed)) uuid-seed)))
 
 (defn make
   "With the optional `uuid` parameter used as a seed, the stateful version of the xoroshiro prng is generated."
-  ([uuid-seed] (opt-stateful-wrapper/make (make-stateless uuid-seed)))
-  ([] (opt-stateful-wrapper/make (make-stateless))))
+  [uuid-seed]
+  (opt-stateful-wrapper/make (make-stateless uuid-seed)))

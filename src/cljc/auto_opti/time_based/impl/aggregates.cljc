@@ -6,6 +6,7 @@
   See the [[aggregator]] function, for details about the aggregation rules."
   (:require
    [auto-core.schema                          :as core-schema]
+   [auto-opti                                 :as-alias opti]
    [auto-opti.time-based.impl.aggregate       :as opt-tb-aggregate]
    [auto-opti.time-based.impl.aggregator-item :as opt-tb-aggregator-item]))
 
@@ -13,7 +14,7 @@
   "Sort the `aggregates` with their `start-bucket`."
   [aggregates]
   (->> aggregates
-       (sort-by :auto-opti.time-based/start-bucket)))
+       (sort-by ::opti/start-bucket)))
 
 (defn- set-end-bucket
   "Set the `end-bucket` of an `aggregate` knowing the following `aggregate` in the order in `aggregtes`."
@@ -36,15 +37,15 @@
   [aggregates]
   (-> aggregates
       (update 0
-              (fn [{:auto-opti.time-based/keys [start-bucket]
+              (fn [{::opti/keys [start-bucket]
                     :as aggregate}]
                 (cond-> aggregate
-                  (nil? start-bucket) (assoc :auto-opti.time-based/start-bucket 0))))))
+                  (nil? start-bucket) (assoc ::opti/start-bucket 0))))))
 
 (defn remove-aggregate-wo-start-bucket
   [aggregates]
   (->> aggregates
-       (filter (comp some? :auto-opti.time-based/start-bucket))))
+       (filter (comp some? ::opti/start-bucket))))
 
 (defn make-aggregator
   "Creates the `aggregator` based on the `aggregates`.
@@ -71,7 +72,7 @@
        (reduce (fn [[start-bucket-aggregate translations] aggregate]
                  (let [aggregator-item (opt-tb-aggregator-item/build start-bucket-aggregate
                                                                      aggregate)
-                       {:auto-opti.time-based/keys [end-bucket-aggregate]} aggregator-item]
+                       {::opti/keys [end-bucket-aggregate]} aggregator-item]
                    [end-bucket-aggregate (conj translations aggregator-item)]))
                [0 []])
        second))

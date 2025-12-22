@@ -14,76 +14,48 @@
 If every tool, when ordered, or even of its own accord, could do the work that befits it, just as the creations of Daedalus moved of themselves, or the tripods of Hephaestus went of their own accord to their sacred work, if the shuttle would weave and the plectrum touch the lyre without a hand to guide them, master-craftsmen would have no need of assistants and masters no need of slaves ~ Aristotle, Politics 1253b
 #+END_QUOTE
 
-`auto-opti` provides features for all kind of optimization: whatever the technology is: Discrete event simulation, scheduling, linear programming etc.
+`auto-opti` provides features for simulation and optimization. The library is agnostic from any technoglogy.
 
-* Definition
-** Model
-A model is a simplification of the system that is learning something useful from it, the model formalizes the system through its states and discrete events.
+* Definitions
+Important definitions concerning simulation and optimization:
 ** System
 The system is the part of the real life that the optimization is dealing with.
+** Model
+A model is a simplification of the system that is learning something useful from it, the model formalizes the system through its states and discrete events.
+** Simulation
+A simulation is a model that can evolve with time. It is often a software as it is easy to do in a computer program, but it is not limited to it.
+* Motivations
+Many libraries exist already for all features mentionned here, but:
+- Specific features are missing like transformation, 
+- Optimization should be agnostic of any execution environment (cli, backend, frontend, android, 32 vs 64 bits...)
+- The assembly of all of that features is the responsability of the user, so it should not be done in advance. That said, assembly should be a no brainer and documented.
 * Features
-The features of those libraries are:
-** Random variable [[https://en.wikipedia.org/wiki/Random_variable][cf. def]]
-- Pseudo-random number generator
-- [[https://en.wikipedia.org/wiki/List_of_probability_distributions][Main distributions]]
-- [[https://en.wikipedia.org/wiki/Normal_distribution][normal distribution]]
-- [[https://en.wikipedia.org/wiki/Discrete_uniform_distribution][discrete uniform distribution]]
-- [[https://en.wikipedia.org/wiki/Poisson_binomial_distribution][Poisson binomial distribution]]
-- [[https://en.wikipedia.org/wiki/Noncentral_chi-squared_distribution][noncentral chi-squared distribution]]
-* Time management
+The libary is a collection of features that can be used independently one from each other, except for some cases where it is explicitly stated.
+** [[file:docs/prng.org][Pseudo random number generator]]
+Generate random numbers shaped for optimization.
+** [[file:docs/distribution.org][Probability distribution]]
+Leverage PRNG to create probabilistic distribution.
+** [[file:docs/crit_comp.org][Criteria comparison]]
+Compare two criteria to have informations on underneath solution performance.
+** [[file:docs/eval.org][Evaluation]]
+Evaluate a representation to obtain a solution
+** Transformation
+Hold, validate and execute the chain: representation -> evaluation -> solution -> criteria -> eval-crit
+** [[file:docs/tb_var.org][Time based variable]]
+Store data over time, with different storing strategy, and different semantics.
+** [[file:docs/sample.org][Sample of data]]
+Calculate statistics on a sample
+** Time management
 - Interface for time in optimization
 - Implementation as Clojure date - [[https://github.com/dm3/clojure.java-time][See javatime]]
 - Implementation as integer, one date is a bucket number
 - Implementation as variable bucket management [different bucket size]
-* Scenario management
+** Scenario management
 - Scenario portfolio
 - Scenario persistence
-* Optimization runner
+** Optimization runner
 - Randomized setup - when some parameters of the optimization are random variable
 - Multiple seed execution
-* Criteria comparison
-- Being able to compare solutions
-- It implements what we typically call Key Performance Indicators.
-* Objective comparison
-- Simple mono-objective comparison
-- Multi-objective comparison [Pareto front]
-* Time phased variable
-** Generic interface
-- get data at a given time whatever the implementation
-** Constant piecewise [[https://mathworld.wolfram.com/PiecewiseConstantFunction.html][cf. def]]
-- between two values: the constant piecewise is returning the value of the previous event where a constant has been set
-- summing two variables: consists in two constant piecewise that are summed
-- typical usage:
-  - stock level: a stock level is set at one point in time, and is constant and still valid for all later on moments, until next stock level information
-** Dirac
-- the value is valid at a specific point
-- between two values: 0 is returned
-- summing two variables: is the union of the two sets of date/value data.
-- typical usage:
-  - production: a production is set at one point in time, every next event does not exist
-** Fuzzy interval
-- the value is somewhere in an interval
-- between two values: the value is somewhere in between
-- summing two variables: each interval intersection has a part of the value [proportional to its size], and the sum of the two intervals are stored
-- typical usage:
-  - Demand: when a demand is set in a month, we don't really know what day it is, all zoom in should spread the value in the interval so the final total is the same
-
-License information can be found in [LICENSE file][LICENSE.md]
-Copyright © 2020-2024 Anthony Caumond, Mateusz Mazurczak
-
-
-
-
-
-
-
-* Main features
-- This project should be agnostic of any environment, so it should run on the following examples of technology: CLI, backend of web app, frontend of web app, Android frontend, Android backend, ...
-- Create cljc versions of features which are not naturally behaving the same between clj and cljs: uuids,
-- Data strucutre helpers : regular expression, strings, keywords, maps, sequences, uuids
-- Logging in clj and cljs with a proxy from cljc
-- Configuration management
-- Translation
 
 * LICENCE
 See license information in [[LICENSE.md][Attribution-NonCommercial 4.0 International]]

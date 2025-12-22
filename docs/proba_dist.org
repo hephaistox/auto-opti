@@ -131,3 +131,8 @@ Resolving is useful to turn a map describing a distribution law into an actual v
 #+RESULTS:
 : [55724612.74045274 2.3]
 * Advanced
+- [[https://en.wikipedia.org/wiki/List_of_probability_distributions][Main distributions]]
+- [[https://en.wikipedia.org/wiki/Normal_distribution][normal distribution]]
+- [[https://en.wikipedia.org/wiki/Discrete_uniform_distribution][discrete uniform distribution]]
+- [[https://en.wikipedia.org/wiki/Poisson_binomial_distribution][Poisson binomial distribution]]
+- [[https://en.wikipedia.org/wiki/Noncentral_chi-squared_distribution][noncentral chi-squared distribution]]

@@ -2,6 +2,7 @@
   "Probabilitisc distributions."
   (:refer-clojure :exclude [resolve])
   (:require
+   [auto-opti                                    :as-alias opti]
    [auto-opti.distribution.distribution-protocol :as opt-distribution-prot]
    [auto-opti.distribution.impl.factory          :as opt-distribution-factory]
    [auto-opti.distribution.registry              :as opt-random-registry]
@@ -21,12 +22,12 @@
   * `prng-name` the pseudo random number generator that is used to generate the distribution."
   [params]
   (if (map? params)
-    (let [{::keys [registry dstb-name prng seed prng-name]} params]
+    (let [{::opti/keys [registry dstb-name prng seed prng-name]} params]
       (opt-distribution-factory/build (or registry distribution-registry)
                                       (or dstb-name :uniform)
                                       (or prng
-                                          (opt-prng/prng #::opt-prng{:prng-name prng-name
-                                                                     :seed seed}))
+                                          (opt-prng/prng #::opti{:prng-name prng-name
+                                                                 :seed seed}))
                                       params))
     params))
 

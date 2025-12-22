@@ -1,5 +1,6 @@
 (ns auto-opti.distribution.impl.category-test
   (:require
+   [auto-opti                                    :as-alias opti]
    [auto-opti.distribution.distribution-protocol :as opt-dstb-prot]
    [auto-opti.distribution.impl.category         :as sut]
    [auto-opti.prng                               :as opt-prng]
@@ -33,35 +34,35 @@
       "Reaching the end of the first category"))
 
 (deftest make-test
-  (is (nil? (opt-dstb-prot/draw (sut/make (opt-prng/prng #::opt-prng{:prng-name :xoroshiro128
-                                                                     :seed uuid-stub})
+  (is (nil? (opt-dstb-prot/draw (sut/make (opt-prng/prng #::opti{:prng-name :xoroshiro128
+                                                                 :seed uuid-stub})
                                           {})))
       "If no category could be found")
   (is (= :a
-         (opt-dstb-prot/draw (sut/make (opt-prng/prng #::opt-prng{:prng-name :xoroshiro128
-                                                                  :seed uuid-stub})
+         (opt-dstb-prot/draw (sut/make (opt-prng/prng #::opti{:prng-name :xoroshiro128
+                                                              :seed uuid-stub})
                                        {:a 10})))
       "An only category is found")
   (is (= :b
-         (opt-dstb-prot/draw (sut/make (opt-prng/prng #::opt-prng{:prng-name :xoroshiro128
-                                                                  :seed uuid-stub})
+         (opt-dstb-prot/draw (sut/make (opt-prng/prng #::opti{:prng-name :xoroshiro128
+                                                              :seed uuid-stub})
                                        {:a 0.10
                                         :b 0.20})))
       "Take one of the category")
   (is (= :a
-         (opt-dstb-prot/median (sut/make (opt-prng/prng #::opt-prng{:prng-name :xoroshiro128
-                                                                    :seed uuid-stub})
+         (opt-dstb-prot/median (sut/make (opt-prng/prng #::opti{:prng-name :xoroshiro128
+                                                                :seed uuid-stub})
                                          {:a 10
                                           :b 2})))
       "The median is in :a")
   (is (= :a
-         (opt-dstb-prot/minimum (sut/make (opt-prng/prng #::opt-prng{:prng-name :xoroshiro128
-                                                                     :seed uuid-stub})
+         (opt-dstb-prot/minimum (sut/make (opt-prng/prng #::opti{:prng-name :xoroshiro128
+                                                                 :seed uuid-stub})
                                           [[:a 10] [:c 144] [:b 12]])))
       "Minimumn returns the first one")
   (is (= :b
-         (opt-dstb-prot/maximum (sut/make (opt-prng/prng #::opt-prng{:prng-name :xoroshiro128
-                                                                     :seed uuid-stub})
+         (opt-dstb-prot/maximum (sut/make (opt-prng/prng #::opti{:prng-name :xoroshiro128
+                                                                 :seed uuid-stub})
                                           [[:a 10] [:c 144] [:b 12]])))
       "Maximumn returns the first one"))
 
@@ -76,8 +77,8 @@
 (deftest assembly-test
   (is
    (= assembly-test-res
-      (let [d (sut/make (opt-prng/prng #::opt-prng{:prng-name :xoroshiro128
-                                                   :seed uuid-stub})
+      (let [d (sut/make (opt-prng/prng #::opti{:prng-name :xoroshiro128
+                                               :seed uuid-stub})
                         {:a 0.10
                          :b 0.50
                          :c 0.4

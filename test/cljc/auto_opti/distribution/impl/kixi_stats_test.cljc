@@ -48,9 +48,6 @@
     (is (every? integer?
                 (-> (sut/make-multinomial 12 [0.4 0.7])
                     opt-distribution-prot/draw))))
-  (testing "Is normal working?"
-    (is (float? (-> (sut/make-normal 0.4 0.7)
-                    opt-distribution-prot/draw))))
   (testing "Is pareto working?"
     (is (float? (-> (sut/make-pareto 0.4 0.7)
                     opt-distribution-prot/draw))))
