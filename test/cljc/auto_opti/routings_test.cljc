@@ -75,8 +75,6 @@
              (update ::sut/route-dstb dissoc :prng)))
       "An operation with an integer for a pt only"))
 
-(def prng (opt-prng/prng {}))
-
 (deftest pick-route-id-test
   (is (= :a
          (let [prng (opt-prng/prng {})]

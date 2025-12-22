@@ -16,7 +16,7 @@
           close-to-pi)
       "Evaluation finds close to 3")
   (is (= {:nb-in 77
-          :nb-total 100
+          :it 100
           :intermediate-criteria 3.08
           :iterations 100}
          (let [x (atom nil)]

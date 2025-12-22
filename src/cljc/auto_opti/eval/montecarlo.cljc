@@ -31,22 +31,21 @@
                                                     :a (- radius)
                                                     :b radius})]
     (when (number? iterations)
-      (loop [it iterations
-             nb-in 0
-             nb-total 0]
+      (loop [it 0
+             nb-in 0]
         (when (fn? iterator-fn)
           (iterator-fn {:nb-in nb-in
-                        :nb-total nb-total
-                        :intermediate-criteria (when-not (zero? nb-total)
-                                                 (-> (/ nb-in nb-total)
+                        :it it
+                        :intermediate-criteria (when (pos? it)
+                                                 (-> (/ nb-in it)
                                                      (* 4.0)))
                         :iterations iterations}))
         (let [x (opt-dstb/draw unif-dst)
               y (opt-dstb/draw unif-dst)
               in-circle? (<= (+ (* x x) (* y y)) radius-square)]
-          (if (pos? it)
-            (recur (dec it) (if in-circle? (inc nb-in) nb-in) (inc nb-total))
-            (-> (/ nb-in (inc nb-total))
+          (if (< it iterations)
+            (recur (inc it) (if in-circle? (inc nb-in) nb-in))
+            (-> (/ nb-in (inc it))
                 (* 4.0))))))))
 
 (def mc-model-schema [:map [:radius :int] [:iterations :int]])

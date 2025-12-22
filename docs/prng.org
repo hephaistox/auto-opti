@@ -1,31 +1,27 @@
 #+title: Prng
-A [[https://en.wikipedia.org/wiki/Pseudorandom_number_generator][pseudo random number generator]] (i.e. =PRNG=) is a tool for modeling randomness in electronic computers. In practice, it’s a mathematical sequence generator that produces numbers that look random.
+A [[https://en.wikipedia.org/wiki/Pseudorandom_number_generator][pseudo random number generator]] (i.e. =PRNG=) is a tool for modeling *randomness* in electronic computers.
 
-=auto-opti= library is aiming this generator for discrete optimization, and its specific needs:
+In practice, it’s a mathematical sequence generator that produces numbers that look random.
 
-- Reproductibility: the same sequence of generated numbers can be produced consistently
-- Uniform generation of value pairs
-- Produces identical sequences across all supported execution environments (java vs javascript).
+* Why a new =PRNG= library
+=auto-opti= library offers a generator with these - as far as we know - unique characteristics:
+ - Reproductibility: user can generate the same sequence of generated numbers again and again,
+ - Uniform generation of value pairs, generating pairs is a specifically difficult problem, generally not well taken into account,
+ - Produces identical sequences across all supported execution environments (java vs javascript).
+ - Behavior is fully parameterized with a map:
+   - Changing the =PRNG= should be as easy as updating the parameter map,
+     - There are periodic breakthroughs (e.g., in 2006) still reshape the field,
+     - No single =PRNG= is universally superior,
+   - Changing the =seed= should be as easy as updating the parameter map,
+ - With better performances
+   - The =PRNGs= built into programming languages (Java, JavaScript, …) are rarely best-in-class,
+   - In terms of execution speed,
+   - In terms of uniformity,
+ - Truly cross-platform =PRNGs= are uncommon (32- vs 64-bit architectures, frontend vs backend), and built-in =PRNGs= are generally not cross-platform.
 
-* Why a new PRNG library
-Properly modelling randomness is a challenging problem — one that dates back to the early days of computer science in 1946 — and periodic breakthroughs (e.g., in 2006) still reshape the field. As a result:
-
-- no single PRNG is universally superior,
-- new, more efficient PRNGs may emerge,
-- the PRNGs built into programming languages (Java, JavaScript, …) are rarely best-in-class,
-- truly cross-platform PRNGs are uncommon (32- vs 64-bit architectures, frontend vs backend), and built-in PRNGs are generally not cross-platform.
-
-The auto-opti library addresses these issues by introducing a parameter map with default PRNG implementations, effectively decoupling the choice of PRNG from its usage.
-
-It provides:
-
-- a clean separation between PRNG implementation and use,
-- making it straightforward to switch from one prng to another
-- PRNGs that do not depend on platform-specific numeric representations,
-- a PRNG that produces identical sequences across all supported execution environments.
+The =auto-opti= library addresses these issues by introducing a parameter map with default =PRNG= implementations.
 * Quick start  
-The PRNG creation starts simply with a parameter map, that has default values and could be empty:
-
+Function =prng= creates a =PRNG= based on the parameter map, that has default values and could be empty:
 #+begin_src clojure
 (require '[auto-opti.prng :as opti-prng]) 
 
@@ -33,20 +29,23 @@ The PRNG creation starts simply with a parameter map, that has default values an
    (-> {}
        opti-prng/prng))
 
-(and (= 56
-        (opti-prng/as-int prng* 10 100))
-     (= 59
-        (opti-prng/as-int prng* 10 100))
-     (= 89
-        (opti-prng/as-int prng* 10 100)))
+(vector (= 56
+          (opti-prng/as-int prng* 10 100))
+        (= 59
+          (opti-prng/as-int prng* 10 100))
+        (= 89
+          (opti-prng/as-int prng* 10 100)))
+;; => [true true true]
 #+end_src
 
 #+RESULTS:
-: true
-* Different Prng usages
-** Simple usage
-When a prng is created, it can be used to generate a random value. Two main implementations are made: one returning integer, the other returning a double. Both implementation returns a value in a range given as parameters of the function call. It is the responsability of the prng implementation to ensure that all values are equiprobable :
+: [true true true]
 
+- All =as-int= function returns now a integer value between =10= and =100=.
+- Values returned are always the same sequence as the seed is the same (it is defaulted, but specified).
+* Different Prng usages
+** Draw a random number
+After the =PRNG= creation, use =as-int= to create an integer or =as-double= to create a double. Both functions expects the range minimum and maximum in their parameters:
 #+begin_src clojure
 (require '[auto-opti.prng :as opti-prng]) 
 
@@ -56,14 +55,14 @@ When a prng is created, it can be used to generate a random value. Two main impl
 
 (vector (opti-prng/as-int prng* 10 100)
         (opti-prng/as-double prng* 10.0 100.0))
+;; => [56 62.28426460501133]
 #+end_src
 
 #+RESULTS:
 : [56 62.28426460501133]
 
 ** Pair of values
-For some prng implementation, returning a pair of values need a specific implementation to ensure all pairs have a uniform probability. The =as-int-pair= and =as-double-pair= functions are dealing with this end.
-
+For some =PRNG= implementations, returning a pair of values need a specific implementation to ensure all pairs have a uniform probability. The =as-int-pair= and =as-double-pair= functions are providing this feature.
 #+begin_src clojure
 (require '[auto-opti.prng :as opti-prng]) 
 
@@ -73,6 +72,7 @@ For some prng implementation, returning a pair of values need a specific impleme
 
 (vector (opti-prng/as-int-pair prng* 10 100)
         (opti-prng/as-double-pair prng* 10.0 100.0))
+;; ==> [[56 59] [89.0 74.0]]
 #+end_src
 
 #+RESULTS:
@@ -80,7 +80,6 @@ For some prng implementation, returning a pair of values need a specific impleme
 
 ** A set of random values
 The =as-ints= and =as-doubles= functions are helpers to return more than one value. Note that, contrarely to the previous =-pair= implementation, there is no effort made to ensure equiprobability.
-
 #+begin_src clojure
 (require '[auto-opti.prng :as opti-prng]) 
 
@@ -90,16 +89,18 @@ The =as-ints= and =as-doubles= functions are helpers to return more than one val
 
 (vector (opti-prng/as-ints prng* 3 10 100)
         (opti-prng/as-doubles prng* 3 10.0 100.0))
+;; => [(56 59 89) (44.32935272914683 47.020137246995276 99.99216829772887)]
 #+end_src
 
 #+RESULTS:
 : [(56 59 89) (44.32935272914683 47.020137246995276 99.99216829772887)]
 
 * Manipulating the seed
-When a prng is created, it starts with a seed. 
+When the =PRNG= creation, it starts with a seed, the one you have provided or a default one if you did not. 
 
-The =prng= is a statefull object that returns a new random value with each =as-*= call. To repeat the pseudo random sequence, =opti-prng= offers many options:
+The =prng= is a statefull object that returns a new random value with each =as-*= function call. To repeat the pseudo random sequence, =opti-prng= offers many options:
 ** Reuse the same seed
+You can first use the same =seed= for two different =PRNG=, so they both return the same values:
 #+begin_src clojure
 (require '[auto-opti.prng :as opti-prng]) 
 
@@ -115,12 +116,14 @@ The =prng= is a statefull object that returns a new random value with each =as-*
         (opti-prng/as-double prng* 10.0 100.0)
         (opti-prng/as-int prng2* 10 100)
         (opti-prng/as-double prng2* 10.0 100.0))
+: [56 62.28426460501133 56 62.28426460501133]
 #+end_src
 
 #+RESULTS:
 : [56 62.28426460501133 56 62.28426460501133]
-** =duplicate=
-A prng that is used with duplicate is starting again from the same seed and returns the same pseudo random number sequence.
+
+** =duplicate= a prng
+A =PRNG= that is used with duplicate is starting again from the same seed and returns the same pseudo random number sequence.
 #+begin_src clojure
 (require '[auto-opti.prng :as opti-prng]) 
 
@@ -139,12 +142,15 @@ A prng that is used with duplicate is starting again from the same seed and retu
         (vector
          (opti-prng/as-int prng2* 10 100)
          (opti-prng/as-double prng2* 10.0 100.0)))
+;; => [[56 62.28426460501133] [56 62.28426460501133]]
 #+end_src
 
 #+RESULTS:
 : [[56 62.28426460501133] [56 62.28426460501133]]
+
+Note that the duplication starts with the same seed, even if some numbers are drawns before.
 ** =uuid-seed=
-With =uuid-seed= you can extract a prng seed and start again the pseudo random number sequence.
+With =uuid-seed= you can extract a =PRNG= seed and start again the pseudo random number sequence. This is useful to persist the seed as a uuid in a file or a database.
 #+begin_src clojure
 (require '[auto-opti.prng :as opti-prng]) 
 
@@ -166,13 +172,14 @@ With =uuid-seed= you can extract a prng seed and start again the pseudo random n
         (vector
          (opti-prng/as-int prng2* 10 100)
          (opti-prng/as-double prng2* 10.0 100.0)))
+;; => [[56 62.28426460501133] [56 62.28426460501133]]
 #+end_src
 
 #+RESULTS:
 : [[56 62.28426460501133] [56 62.28426460501133]]
 
 ** =reset= 
-The =reset= function returns the PRNG to the initial state it had when created, producing the same pseudo-random sequence.
+The =reset= function returns the =PRNG= to the initial state it had when created, producing the same pseudo-random sequence.
 #+begin_src clojure
 (require '[auto-opti.prng :as opti-prng]) 
 
@@ -192,12 +199,14 @@ The =reset= function returns the PRNG to the initial state it had when created, 
         (vector
          (opti-prng/as-int prng2* 10 100)
          (opti-prng/as-double prng2* 10.0 100.0)))
+;; => [[56 62.28426460501133] [56 62.28426460501133]]
 #+end_src
 
 #+RESULTS:
 : [[56 62.28426460501133] [56 62.28426460501133]]
-* Switching a prng
-All previous examples were using the default prng implementation which is xoroshiro128. Turning into a different implementation is simply done with the =::opti-prng/prng-name= parameter that can take one of the registry's value:
+
+* Switching the =PRNG= implementation
+All previous examples were using the default =PRNG= implementation which is xoroshiro128. Turning into a different implementation is simply done with the =::opti-prng/prng-name= parameter that can take one of the registry's value:
 #+begin_src clojure
 (require '[auto-opti.prng :as opti-prng]) 
 
@@ -211,13 +220,11 @@ All previous examples were using the default prng implementation which is xorosh
 #+end_src
 
 #+RESULTS:
-: [10.020865747422322 10.351964840676771]
+: [10.695273750610147 10.61045651247625]
 
 PS: Note that the built-in implementation has no clean seed management, so results will be different for each execution.
-
 * Best practise
-For robust randomness, the =auto-opti='s usage best practises are suppose to specify both name and seed :
-
+For robust randomness, specify both =prng-name= and =seed=:
 #+begin_src clojure
 (require '[auto-opti.prng :as opti-prng]) 
 
@@ -228,16 +235,17 @@ For robust randomness, the =auto-opti='s usage best practises are suppose to spe
 
 (vector (opti-prng/as-int prng* 10 100)
         (opti-prng/as-double prng* 10.0 100.0))
+;; => [56 62.28426460501133]
 #+end_src
 
 #+RESULTS:
 : [56 62.28426460501133]
 
 * Advanced setup
-** Create your own prng 
+** Create your own =PRNG= 
 You can add some new prngs in the existing registry and then leverage the library's features.
 
-For this, you need to create your generator first, it should implement the =auto-opti.prng/stateful/PRNG='s interface. Then, you should include your prng to the regirstry and use it.
+For this, you need to create your generator first, it should implement the =auto-opti.prng/stateful/PRNG='s interface. Then, you should include your =PRNG= to the regirstry and use it.
 
 #+begin_src clojure
 (require '[auto-opti.prng :as opti-prng])
@@ -269,8 +277,9 @@ For this, you need to create your generator first, it should implement the =auto
 
 #+RESULTS:
 : #auto_opti.prng.impl.built_in.My-PRNG{}
+
 ** Jump
-With =jump=, one can improve values statistical independance like the prng state is a complete different seed. Most best in class prng implementation offer a proper way to do this effeciently. And it's prng implementer's concern to do it.
+With =jump=, one can improve values statistical independance like the =PRNG= state is a complete different seed. Most best in class =PRNG= implementation offer a proper way to do this effeciently. And it's =PRNG= implementer's concern to do it.
 When you don't use jump, you may:
 - Either get the next value, and we know that two consecutive values may have some biases.
 - Either start with a completetly different seed, that impose to store many seeds.
