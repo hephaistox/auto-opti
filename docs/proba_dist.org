@@ -5,7 +5,7 @@ Generate distribution law.
 * Quick start
 The distribution law creation is as simple as creating a parameter map and call =distribution=.
 #+begin_src clojure
-(require '[auto-opti.distribution :as opti-dst])
+(require '[auto-opti.proba-dist :as opti-dst])
 
 (def d
   (->  {}
@@ -27,7 +27,7 @@ First to leverage the PRNG we built. And also to obey the [[file:design_decision
 ** Comprehensive example
 The same example than the quick start, but with no default values used.
 #+begin_src clojure
-(require '[auto-opti.distribution :as opti-dst]
+(require '[auto-opti.proba-dist :as opti-dst]
          '[auto-opti.maths        :as opt-maths])
 
 (def d
@@ -50,7 +50,7 @@ This returns exactly the same results of course. But now you have control on val
 It is possible to leverage a PRNG created in another context with the =:prng= parameter. This is especially useful if you have more than one distribution in your model, so you share your seed across different needs.
 
 #+begin_src clojure
-(require '[auto-opti.distribution :as opti-dst]
+(require '[auto-opti.proba-dist :as opti-dst]
          '[auto-opti.prng         :as opti-prng]
          '[auto-opti.maths        :as opt-maths])
 
@@ -79,7 +79,7 @@ Note that:
 ** Characteristics
 Simple characteristics of distribution are available:
 #+begin_src clojure
-(require '[auto-opti.distribution :as opti-dst])
+(require '[auto-opti.proba-dist :as opti-dst])
 
 (def prng
   (-> {:prng-name :xoroshiro128
@@ -109,7 +109,7 @@ Simple characteristics of distribution are available:
 Resolving is useful to turn a map describing a distribution law into an actual value.
 
 #+begin_src clojure
-(require '[auto-opti.distribution :as opti-dst])
+(require '[auto-opti.proba-dist :as opti-dst])
 
 (def prng
   (-> {:prng-name :xoroshiro128

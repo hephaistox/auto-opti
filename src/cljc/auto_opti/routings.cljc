@@ -7,7 +7,7 @@
   * `pt` the processing time that could be an integer or a distribution"
   (:require
    [auto-opti              :as-alias opti]
-   [auto-opti.distribution :as opt-dstb]))
+   [auto-opti.proba-dist :as opt-dstb]))
 
 (defn machines
   "Sorted list of machines"

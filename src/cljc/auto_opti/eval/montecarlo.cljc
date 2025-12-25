@@ -3,7 +3,7 @@
   (:refer-clojure :exclude [eval])
   (:require
    [auto-core.schema       :as opt-schema]
-   [auto-opti.distribution :as opt-dstb]))
+   [auto-opti.proba-dist :as opt-dstb]))
 
 (defn eval
   "`x` and `y` are drawn in an uniform distribution in `[-radius;radius]` interval.

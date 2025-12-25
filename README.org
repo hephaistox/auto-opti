@@ -2,9 +2,9 @@
 #+author: Anthony CAUMOND
 # See full fledge org example here https://github.com/fniessen/refcard-org-mode/blob/master/README.org?plain=1
 
-[[https://github.com/hephaistox/auto-core/actions/workflows/commit_validation.yml][https://github.com/hephaistox/auto-core/actions/workflows/commit_validation.yml/badge.svg]]  [[https://github.com/hephaistox/auto-core/actions/workflows/pages/pages-build-deployment][https://github.com/hephaistox/auto-core/actions/workflows/pages/pages-build-deployment/badge.svg]]
+[[https://github.com/hephaistox/auto-opti/actions/workflows/commit_validation.yml][https://github.com/hephaistox/auto-opti/actions/workflows/commit_validation.yml/badge.svg]]  [[https://github.com/hephaistox/auto-opti/actions/workflows/pages/pages-build-deployment][https://github.com/hephaistox/auto-opti/actions/workflows/pages/pages-build-deployment/badge.svg]]
 
-[[https://github.com/hephaistox/hephaistox/wiki][https://img.shields.io/badge/wiki-hephaistox-blue.svg]] [[https://github.com/hephaistox/auto-core/wiki][https://img.shields.io/badge/wiki-project-blue.svg]] [[https://github.com/hephaistox/auto-core/discussions][https://img.shields.io/badge/discussions-blue.svg]]
+[[https://github.com/hephaistox/hephaistox/wiki][https://img.shields.io/badge/wiki-hephaistox-blue.svg]] [[https://github.com/hephaistox/auto-opti/wiki][https://img.shields.io/badge/wiki-project-blue.svg]] [[https://github.com/hephaistox/auto-opti/discussions][https://img.shields.io/badge/discussions-blue.svg]]
 [[https://hephaistox.github.io/auto-opti/][https://img.shields.io/badge/api-blue.svg]]
 
 
@@ -21,39 +21,47 @@ Important definitions concerning simulation and optimization:
 ** System
 The system is the part of the real life that the optimization is dealing with.
 ** Model
-A model is a simplification of the system that is learning something useful from it, the model formalizes the system through its states and discrete events.
-** Simulation
-A simulation is a model that can evolve with time. It is often a software as it is easy to do in a computer program, but it is not limited to it.
+A model is a simplification of the system that is learning something useful from it.
+** Discrete event simulation
+A simulation formalizes the system through its states and discrete events. A simulation evolves with time. It is often a software as it is easy to do in a computer program, but it is not limited to it.
 * Motivations
 Many libraries exist already for all features mentionned here, but:
-- Specific features are missing like transformation, 
+- Specific features are missing like transformation, evaluation criteria, evaluation, ...
 - Optimization should be agnostic of any execution environment (cli, backend, frontend, android, 32 vs 64 bits...)
 - The assembly of all of that features is the responsability of the user, so it should not be done in advance. That said, assembly should be a no brainer and documented.
+- That assembly should be the starting point for vizualization components.
 * Features
 The libary is a collection of features that can be used independently one from each other, except for some cases where it is explicitly stated.
-** [[file:docs/prng.org][Pseudo random number generator]]
+** Randomness
+*** [[file:docs/prng.org][Pseudo random number generator]]
 Generate random numbers shaped for optimization.
-** [[file:docs/distribution.org][Probability distribution]]
+*** [[file:docs/distribution.org][Probability distribution]]
 Leverage PRNG to create probabilistic distribution.
-** [[file:docs/crit_comp.org][Criteria comparison]]
-Compare two criteria to have informations on underneath solution performance.
-** [[file:docs/eval.org][Evaluation]]
-Evaluate a representation to obtain a solution
-** Transformation
-Hold, validate and execute the chain: representation -> evaluation -> solution -> criteria -> eval-crit
-** [[file:docs/tb_var.org][Time based variable]]
-Store data over time, with different storing strategy, and different semantics.
-** [[file:docs/sample.org][Sample of data]]
+*** [[file:docs/sample.org][Sample of data]]
 Calculate statistics on a sample
-** Time management
+** Optimization transformation
+*** [[file:docs/crit_comp.org][Criteria comparison]]
+Compare two criteria to have informations on underneath solution performance.
+*** [[file:docs/eval.org][Evaluation]]
+Evaluate a representation to obtain a solution
+*** Transformation
+Hold, validate and execute the chain: representation -> evaluation -> solution -> criteria -> eval-crit
+** Industry
+*** Routings
+Model machine, products, operations
+
+** Time 
+*** [[file:docs/tb_var.org][Time based variable]]
+Store data over time, with different storing strategy, and different semantics.
+*** Time management
 - Interface for time in optimization
 - Implementation as Clojure date - [[https://github.com/dm3/clojure.java-time][See javatime]]
 - Implementation as integer, one date is a bucket number
 - Implementation as variable bucket management [different bucket size]
-** Scenario management
+** Scenario
 - Scenario portfolio
 - Scenario persistence
-** Optimization runner
+*** Optimization runner
 - Randomized setup - when some parameters of the optimization are random variable
 - Multiple seed execution
 

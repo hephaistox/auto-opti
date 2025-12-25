@@ -4,7 +4,7 @@ Time based variables (so called =tb-var=) are storing informations relative to t
 * Quick start
 The example below models data like stock entry: 
 #+begin_src clojure
-(require '[auto-opti.time-based :as opti-tb])
+(require '[auto-opti.tb-var :as opti-tb])
 
 (-> (opti-tb/tb-var-additive-deltas)
     (opti-tb/measure 3 7)
@@ -24,7 +24,7 @@ In the example above, three measures are added. Note that:
   
 The next example is useful for a stock level. When a data is added in a bucket, it is the value for all following buckets, unless a new value is inserted in between.
 #+begin_src clojure
-(require '[auto-opti.time-based :as opti-tb])
+(require '[auto-opti.tb-var :as opti-tb])
 
 (-> (opti-tb/tb-var-latest-deltas 0)
     (opti-tb/measure 5 7)
@@ -61,7 +61,7 @@ Data that are additive over buckets:
 - If a value is already stored in that bucket, it will be added to the existing value.
 - The values should be numerical (they should support =+=).
 
-  For instance, a production is additive, since a new production recorded in the same scenario-time is added to the previous auto-opti.time-based.impl.additive.
+  For instance, a production is additive, since a new production recorded in the same scenario-time is added to the previous auto-opti.tb-var.impl.additive.
 
   This form is optimized for variables that has few values over the horizon, as it is storing only deltas, so only change in the value.
 ** Default
@@ -71,7 +71,7 @@ A measure is a pair of a value and a bucket. As described in previous section, i
 
 When a measure, call the =measure= function, use =get-measures= to have values back:
 #+begin_src clojure
-(require '[auto-opti.time-based :as opti-tb])
+(require '[auto-opti.tb-var :as opti-tb])
 
 (-> (opti-tb/tb-var-latest-deltas 0)
     (opti-tb/measure 5 7)
@@ -88,7 +88,7 @@ Note that:
 ** Aggregator
 Use an aggregator to group bucket of times. For instance, you have some measures done at the day level but you'd like to compute a weekly value. Build an aggregator
 #+begin_src clojure
-(require '[auto-opti.time-based :as opti-tb])
+(require '[auto-opti.tb-var :as opti-tb])
 
 (def tb
   (opti-tb/tb-var-latest-deltas 0))
@@ -104,7 +104,7 @@ Use an aggregator to group bucket of times. For instance, you have some measures
 ** Types
 All data are stored with the type you put in it:
 #+begin_src clojure
-(require '[auto-opti.time-based :as opti-tb])
+(require '[auto-opti.tb-var :as opti-tb])
 
 (mapv type
       (-> (opti-tb/tb-var-latest-deltas 0)

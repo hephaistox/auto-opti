@@ -1,9 +1,9 @@
 (ns auto-opti.routings-test
   (:require
-   [auto-opti              :as-alias opti]
-   [auto-opti.distribution :as opt-dstb]
-   [auto-opti.prng         :as opt-prng]
-   [auto-opti.routings     :as sut]
+   [auto-opti            :as-alias opti]
+   [auto-opti.prng       :as opt-prng]
+   [auto-opti.proba-dist :as opt-dstb]
+   [auto-opti.routings   :as sut]
    #?(:clj [clojure.test :refer [deftest is]]
       :cljs [cljs.test :refer [deftest is] :include-macros true])))
 
