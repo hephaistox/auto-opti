@@ -1,4 +1,4 @@
-{:deps {com.github.hephaistox/auto-build {:git/sha "cd0854aaba46d240ac4852b97d1f4f708ed626dc"}}
+{:deps {com.github.hephaistox/auto-build {:git/sha "1116cf94d491b1649ce47a5abc545aaeeb3b7691"}}
  :paths []
  :tasks
  {:requires [[auto-build.os.exit-codes] [auto-build.os.exiting :refer [exit]]]
@@ -53,7 +53,7 @@
         :task (do (shell "clj -M:antq") (shell "npm upgrade"))}
   docs {:doc "Docs"
         :requires [[auto-build.tasks.docs :as build-docs] [auto-build.echo :refer [level1-header]]]
-        :task (-> (build-docs/docs level1-header "." (current-task) "gh-pages")
+        :task (-> (build-docs/docs level1-header "." (current-task) "gh-pages" "codox")
                   exit)}
   format {:doc "Format"
           :requires [[auto-build.tasks.formatting :as task-format]
@@ -68,6 +68,9 @@
                         [auto-build.echo :refer [level1-header]]]
              :task (-> (heph-info/heph-info level1-header (current-task) ".")
                        exit)}
+  init {:doc "Execute at first to add wiki repo"
+        :requires [[auto-build.tasks.init :as task-init] [auto-build.echo :refer [level1-header]]]
+        :task (task-init/run level1-header "git@github.com:hephaistox/auto-opti.wiki.git")}
   lint {:doc "Lint"
         :requires [[auto-build.tasks.lint :as task-lint] [auto-build.echo :refer [level1-header]]]
         :task (-> (task-lint/lint level1-header ["src" "test"] "." (current-task))

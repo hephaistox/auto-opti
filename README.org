@@ -8,13 +8,13 @@
 [[https://hephaistox.github.io/auto-opti/][https://img.shields.io/badge/api-blue.svg]]
 
 
-[[file:docs/img/automaton_duck.png]]
+[[file:automaton_duck.png]]
 
 #+BEGIN_QUOTE
 If every tool, when ordered, or even of its own accord, could do the work that befits it, just as the creations of Daedalus moved of themselves, or the tripods of Hephaestus went of their own accord to their sacred work, if the shuttle would weave and the plectrum touch the lyre without a hand to guide them, master-craftsmen would have no need of assistants and masters no need of slaves ~ Aristotle, Politics 1253b
 #+END_QUOTE
 
-`auto-opti` provides features for simulation and optimization. The library is agnostic from any technoglogy.
+`auto-opti` provides features for optimization. The library is agnostic from any rendering or solver technoglogy.
 
 * Definitions
 Important definitions concerning simulation and optimization:
@@ -30,41 +30,8 @@ Many libraries exist already for all features mentionned here, but:
 - Optimization should be agnostic of any execution environment (cli, backend, frontend, android, 32 vs 64 bits...)
 - The assembly of all of that features is the responsability of the user, so it should not be done in advance. That said, assembly should be a no brainer and documented.
 - That assembly should be the starting point for vizualization components.
-* Features
-The libary is a collection of features that can be used independently one from each other, except for some cases where it is explicitly stated.
-** Randomness
-*** [[file:docs/prng.org][Pseudo random number generator]]
-Generate random numbers shaped for optimization.
-*** [[file:docs/distribution.org][Probability distribution]]
-Leverage PRNG to create probabilistic distribution.
-*** [[file:docs/sample.org][Sample of data]]
-Calculate statistics on a sample
-** Optimization transformation
-*** [[file:docs/crit_comp.org][Criteria comparison]]
-Compare two criteria to have informations on underneath solution performance.
-*** [[file:docs/eval.org][Evaluation]]
-Evaluate a representation to obtain a solution
-*** Transformation
-Hold, validate and execute the chain: representation -> evaluation -> solution -> criteria -> eval-crit
-** Industry
-*** Routings
-Model machine, products, operations
-
-** Time 
-*** [[file:docs/tb_var.org][Time based variable]]
-Store data over time, with different storing strategy, and different semantics.
-*** Time management
-- Interface for time in optimization
-- Implementation as Clojure date - [[https://github.com/dm3/clojure.java-time][See javatime]]
-- Implementation as integer, one date is a bucket number
-- Implementation as variable bucket management [different bucket size]
-** Scenario
-- Scenario portfolio
-- Scenario persistence
-*** Optimization runner
-- Randomized setup - when some parameters of the optimization are random variable
-- Multiple seed execution
-
+* Wiki
+See more details in the[[https://github.com/hephaistox/auto-opti/wiki][wiki]].
 * LICENCE
 See license information in [[LICENSE.md][Attribution-NonCommercial 4.0 International]]
 
