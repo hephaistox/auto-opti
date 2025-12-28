@@ -1,6 +1,7 @@
 (ns auto-opti.tb-var.protocol
   "Time-based measures.
-  This namespace could be used to creates new `tb-var` implementation.")
+  This namespace could be used to creates new `tb-var` implementation."
+  {:no-doc true})
 
 (defprotocol TimeBased
   (default [this]

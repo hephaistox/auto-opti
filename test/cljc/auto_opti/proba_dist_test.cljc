@@ -8,16 +8,21 @@
    [auto-opti.proba-dist :as sut]))
 
 (deftest distribution-test
-  (is (-> (sut/distribution {})
+  (is (-> (sut/distribution #::opti{:a 10
+                                    :b 20})
           sut/draw
           number?)
       "Is an empty parameter map creating a valid distribution")
-  (is (-> (sut/distribution #::opti{:seed #uuid "31bf8660-b31b-4c1c-b440-8ecf82e0a477"})
+  (is (-> (sut/distribution #::opti{:seed #uuid "31bf8660-b31b-4c1c-b440-8ecf82e0a477"
+                                    :a 10
+                                    :b 20})
           sut/draw
           number?)
       "If seed is provided")
-  (is (= 1.929382551206999E9
-         (-> #::opti{:seed #uuid "31bf8660-b31b-4c1c-b440-8ecf82e0a477"}
+  (is (= 18.984387629225097
+         (-> #::opti{:seed #uuid "31bf8660-b31b-4c1c-b440-8ecf82e0a477"
+                     :a 10
+                     :b 20}
              sut/distribution
              sut/draw))
       "Random")

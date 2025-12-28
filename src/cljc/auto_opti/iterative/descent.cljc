@@ -1,4 +1,6 @@
-(ns auto-opti.iterative.descent "Descent algorithm, find the best among neighbors and iterate")
+(ns auto-opti.iterative.descent
+  "Descent algorithm, find the best among neighbors and iterate"
+  {:no-doc true})
 
 (defn stochastic
   "Scan stochastically the neighborhood to optimize the representation."

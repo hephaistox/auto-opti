@@ -1,7 +1,8 @@
 (ns auto-opti.tb-var.impl.storage-strategy
   "Strategies to store data in `tb-var`.
 
-  Note: `get-exact` and `get-measures` are redundant functionaly but are here to optimize performance.")
+  Note: `get-exact` and `get-measures` are redundant functionaly but are here to optimize performance."
+  {:no-doc true})
 
 (defprotocol BucketData
   (assoc-date [this bucket v]

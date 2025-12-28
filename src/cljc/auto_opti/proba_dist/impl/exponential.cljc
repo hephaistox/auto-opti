@@ -2,10 +2,11 @@
   "Exponential distribution based on [inversion method](https://en.wikipedia.org/wiki/Inverse_transform_sampling).
 
   See the [wiki article](https://en.wikipedia.org/wiki/Exponential_distribution)."
+  {:no-doc true}
   (:require
-   [auto-opti.proba-dist.distribution-protocol :as opt-distribution-prot]
-   [auto-opti.maths                              :as opt-maths]
-   [auto-opti.prng.stateful                      :as opt-prng-stateful]))
+   [auto-opti.maths                            :as opt-maths]
+   [auto-opti.prng.stateful                    :as opt-prng-stateful]
+   [auto-opti.proba-dist.distribution-protocol :as opt-distribution-prot]))
 
 (defrecord Exponential [prng rate]
   opt-distribution-prot/Distribution

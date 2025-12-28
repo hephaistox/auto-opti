@@ -1,4 +1,6 @@
-(ns auto-opti.proba-dist.distribution-protocol "Probabilistic distributions protocol.")
+(ns auto-opti.proba-dist.distribution-protocol
+  "Probabilistic distributions protocol."
+  {:no-doc true})
 
 (defprotocol Distribution
   (draw [this]

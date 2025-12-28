@@ -1,7 +1,8 @@
 (ns auto-opti.tb-var.impl.storage-strategy.deltas
   "Stores data in a collection of time / data pair fashion."
+  {:no-doc true}
   (:require
-   [auto-core.data.map                         :as utils-map]
+   [auto-core.data.map                     :as utils-map]
    [auto-opti.tb-var.impl.storage-strategy :as opt-tb-ss]))
 
 (defrecord DeltaStrategy [deltas]

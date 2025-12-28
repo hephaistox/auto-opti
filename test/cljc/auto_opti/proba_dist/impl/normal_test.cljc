@@ -162,11 +162,10 @@
                 frequencies)))))
 
 (comment
-  (require '[com.hypirion.clj-xchart :as c2])
-  (c2/view (c/category-chart {"Values" assembly-integer-test-res}
-                             {:title "Normal"
-                              :series-order (->> assembly-integer-test-res
-                                                 keys
-                                                 sort
-                                                 (map str))
-                              :theme :ggplot2})))
+  (c/view (c/category-chart {"Values" assembly-integer-test-res}
+                            {:title "Normal"
+                             :series-order (->> assembly-integer-test-res
+                                                keys
+                                                sort
+                                                (map str))
+                             :theme :ggplot2})))

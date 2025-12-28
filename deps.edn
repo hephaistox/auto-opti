@@ -11,7 +11,7 @@
   :codox
   {:exec-args
    {:description
-    "`auto-opti` gather general features for all optimization techniques - prng, sampling, time-based, maths, distribution, ..."
+    "auto-opti gather features for all optimization techniques. This website describes the API, see https://github.com/hephaistox/auto-opti/wiki for more informations."
     :doc-paths ["docs/codox"]
     :metadata {:doc/format :markdown}
     :name "auto-opti"

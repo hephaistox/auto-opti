@@ -7,6 +7,7 @@
 
   For instance, a stock level is such, since a new stock level will be recorded at that moment.
   Note that the order of the measures is not significant."
+  {:no-doc true}
   (:require
    [auto-opti.tb-var.impl.storage-strategy :as opt-tb-ss]
    [auto-opti.tb-var.protocol              :as opt-tb-protocol]))

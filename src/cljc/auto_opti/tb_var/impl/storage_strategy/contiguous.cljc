@@ -2,6 +2,7 @@
   "Stores data in a contiguous data structure.
 
   Adding an element outside the initial capacity will add chunk-size element, plus what's missing to store the element."
+  {:no-doc true}
   (:require
    [auto-opti.tb-var.impl.storage-strategy :as opt-tb-ss]))
 

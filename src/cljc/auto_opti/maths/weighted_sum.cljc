@@ -1,4 +1,4 @@
-(ns auto-opti.maths.weighted-sum)
+(ns auto-opti.maths.weighted-sum {:no-doc true})
 
 (defn weighted-sum
   "Calculate a weighted sum, `weights` is a map associating a `weight` to a keyword. This keyword should appear in `crits`."

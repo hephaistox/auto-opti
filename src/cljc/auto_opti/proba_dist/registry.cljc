@@ -3,6 +3,7 @@
 
   They are all implementing the `auto-opti.proba.distribution/Distribution` protocol.
   Note that you can enrich them with your own distribution implementations if needed."
+  {:no-doc true}
   (:require
    [auto-opti                                 :as-alias opti]
    [auto-opti.proba-dist.impl.category        :as opt-category]

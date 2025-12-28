@@ -1,9 +1,10 @@
 (ns auto-opti.proba-dist.impl.uniform
   "An uniform distribution, returning a double between `a` and `b`."
+  {:no-doc true}
   (:require
-   [auto-opti.proba-dist.distribution-protocol :as opt-distribution-prot]
-   [auto-opti.maths                              :as opt-maths]
-   [auto-opti.prng.stateful                      :as opt-prng-stateful]))
+   [auto-opti.maths                            :as opt-maths]
+   [auto-opti.prng.stateful                    :as opt-prng-stateful]
+   [auto-opti.proba-dist.distribution-protocol :as opt-distribution-prot]))
 
 (defrecord Uniform [prng a b width]
   opt-distribution-prot/Distribution

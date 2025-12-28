@@ -1,5 +1,6 @@
 (ns auto-opti.maths.gamma
   "Calculation of gamma function"
+  {:no-doc true}
   (:refer-clojure :exclude [abs])
   (:require
    [auto-opti.maths :refer [HALF_LOG_2_PI

@@ -2,6 +2,7 @@
   "A `tb-var` storing data through an aggregator.
 
   Note that the storage strategy and the way values are aggregated is the repsonsability of the `tb-var`."
+  {:no-doc true}
   (:require
    [auto-opti.tb-var.impl.aggregator :as opt-tb-aggregator]
    [auto-opti.tb-var.protocol        :as opt-tb-protocol]))

@@ -6,6 +6,8 @@
    [auto-opti.prng.impl.xoroshiro128 :as opt-prng-xoro]
    [auto-opti.prng.stateful          :as sut]))
 
+(def seed #uuid "9fa7b74d-2414-4815-9cfd-a7b9af715b6a")
+
 (defn test-duplicate
   [stateful-prng]
   (let [first-rnd (sut/rnd-int stateful-prng 10 100)
@@ -45,5 +47,6 @@
 
 (deftest as-ints-test
   (testing "Are integer drawn in the range."
-    (is (nil? (core-schema/validate-data-humanize [:sequential int?]
-                                                  (sut/as-ints (opt-prng-xoro/make) 10 0 100))))))
+    (is (nil? (core-schema/validate-data-humanize
+               [:sequential int?]
+               (sut/as-ints (opt-prng-xoro/make seed) 10 0 100))))))

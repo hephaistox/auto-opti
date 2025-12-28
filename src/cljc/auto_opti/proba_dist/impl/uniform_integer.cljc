@@ -1,9 +1,10 @@
 (ns auto-opti.proba-dist.impl.uniform-integer
   "An uniform distribution of integers."
+  {:no-doc true}
   (:require
-   [auto-opti.proba-dist.distribution-protocol :as opt-distribution-prot]
-   [auto-opti.maths                              :as opt-maths]
-   [auto-opti.prng.stateful                      :as opt-prng-stateful]))
+   [auto-opti.maths                            :as opt-maths]
+   [auto-opti.prng.stateful                    :as opt-prng-stateful]
+   [auto-opti.proba-dist.distribution-protocol :as opt-distribution-prot]))
 
 (defrecord UniformInteger [prng a b]
   opt-distribution-prot/Distribution

@@ -1,4 +1,4 @@
-(ns auto-opti.proba-dist.impl.factory "Factory to create the distribution.")
+(ns auto-opti.proba-dist.impl.factory "Factory to create the distribution." {:no-doc true})
 
 (defn build
   "Creates the distribution `distribution-name` leveraging the `prng`.

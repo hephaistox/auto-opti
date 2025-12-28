@@ -4,6 +4,7 @@
   This list is used by a `aggregator-item` to create the `aggregator`.
 
   See the [[aggregator]] function, for details about the aggregation rules."
+  {:no-doc true}
   (:require
    [auto-core.schema                      :as core-schema]
    [auto-opti                             :as-alias opti]

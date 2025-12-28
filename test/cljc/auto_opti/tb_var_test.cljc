@@ -3,6 +3,7 @@
   (:require
    #?(:clj [clojure.test :refer [deftest is]]
       :cljs [cljs.test :refer [deftest is] :include-macros true])
+   [auto-opti        :as-alias opti]
    [auto-opti.tb-var :as sut]))
 
 (deftest tb-var-additive-composition-test
@@ -74,29 +75,29 @@
 
 (deftest aggregator-assembly-test
   (is (= 4
-         (-> [#::sut{:start-bucket 0
-                     :step 10}]
+         (-> [#::opti{:start-bucket 0
+                      :step 10}]
              sut/aggregator
              (sut/to-bucket-aggregate 40))))
-  (is (nil? (sut/validate-aggregates [#::sut{:start-bucket 0
-                                             :step 10}])))
-  (is some? (sut/validate-aggregates [#::sut{:step 10}]))
+  (is (nil? (sut/validate-aggregates [#::opti{:start-bucket 0
+                                              :step 10}])))
+  (is some? (sut/validate-aggregates [#::opti{:step 10}]))
   (is (= [nil nil 0 0 0 0 0 1 1 1 1 1 nil nil]
-         (let [agg (-> [#::sut{:start-bucket 10
-                               :end-bucket 20
-                               :step 5}]
+         (let [agg (-> [#::opti{:start-bucket 10
+                                :end-bucket 20
+                                :step 5}]
                        sut/aggregator)]
            (mapv #(sut/to-bucket-aggregate agg %) (range 8 22)))))
   (is (= [0 1]
-         (-> [#::sut{:start-bucket 10
-                     :end-bucket 20
-                     :step 5}]
+         (-> [#::opti{:start-bucket 10
+                      :end-bucket 20
+                      :step 5}]
              sut/aggregator
              (sut/to-bucket-aggregates (range 8 22)))))
   (is (= [nil 7 7 7 0 0]
-         (let [tb-var-agg1 (-> [#::sut{:start-bucket 10
-                                       :end-bucket 20
-                                       :step 5}]
+         (let [tb-var-agg1 (-> [#::opti{:start-bucket 10
+                                        :end-bucket 20
+                                        :step 5}]
                                sut/aggregator
                                (sut/tb-var-aggregated (sut/tb-var-additive-deltas))
                                (sut/measure 10 3)

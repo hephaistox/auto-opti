@@ -5,6 +5,7 @@
   * If a value is set to an empty bucket, the value is replacing the `default-value`.
   * If a value is already stored in that bucket, it will be added to the existing value.
   * The values should be numerical to support +."
+  {:no-doc true}
   (:require
    [auto-opti.tb-var.impl.storage-strategy :as opt-tb-ss]
    [auto-opti.tb-var.protocol              :as opt-tb-protocol]))

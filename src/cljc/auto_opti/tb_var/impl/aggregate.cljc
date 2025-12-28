@@ -6,6 +6,7 @@
   * `step` is the number of `bucket`s gathered in that `aggregate`, `step  ∈ ℕ*`
 
   Note that without knowing the other `aggregate` in the `aggregates`, the targeted  `bucket-aggregate` are not fully defined."
+  {:no-doc true}
   (:require
    [auto-opti :as-alias opti]))
 

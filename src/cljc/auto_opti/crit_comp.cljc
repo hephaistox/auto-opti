@@ -1,5 +1,5 @@
 (ns auto-opti.crit-comp
-  "Criteria comparator."
+  "Use criteria comparator to compare two solutions."
   (:refer-clojure :exclude [eval])
   (:require
    [auto-opti                    :as-alias opti]
@@ -75,8 +75,7 @@
                  (fn [crit1 crit2]
                    (let [{:keys [worst better]
                           :or {worst 0
-                               better 0}
-                          :as x}
+                               better 0}}
                          (->> crit-names
                               (map (fn [k] (cmp (get crit1 k) (get crit2 k))))
                               frequencies)]

@@ -1,8 +1,9 @@
 (ns auto-opti.proba-dist.impl.category
   "A category distribution."
+  {:no-doc true}
   (:require
-   [auto-opti.proba-dist.distribution-protocol :as opt-prot]
-   [auto-opti.prng.stateful                      :as opt-prng-stateful]))
+   [auto-opti.prng.stateful                    :as opt-prng-stateful]
+   [auto-opti.proba-dist.distribution-protocol :as opt-prot]))
 
 (defn pick-category
   [value categories]

@@ -1,8 +1,10 @@
 (ns auto-opti.eval.montecarlo
   "Evaluate an approximation of `π` with the montecarlo method."
+  {:no-doc true}
   (:refer-clojure :exclude [eval])
   (:require
-   [auto-core.schema       :as opt-schema]
+   [auto-core.schema     :as opt-schema]
+   [auto-opti            :as-alias opti]
    [auto-opti.proba-dist :as opt-dstb]))
 
 (defn eval
@@ -26,10 +28,10 @@
    {:keys [seed]
     :as _rep}]
   (let [radius-square (* radius radius)
-        unif-dst (opt-dstb/distribution #::opt-dstb{:dstb-name :uniform
-                                                    :seed seed
-                                                    :a (- radius)
-                                                    :b radius})]
+        unif-dst (opt-dstb/distribution #::opti{:dstb-name :uniform
+                                                :seed seed
+                                                :a (- radius)
+                                                :b radius})]
     (when (number? iterations)
       (loop [it 0
              nb-in 0]

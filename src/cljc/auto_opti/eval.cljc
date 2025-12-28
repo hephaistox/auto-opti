@@ -1,5 +1,7 @@
 (ns auto-opti.eval
-  "Optimisation evalutions. This namespace contains some simple evalution for test purposed and is expected to be enriched by user or other libraries."
+  "Optimisation evalutions. This namespace contains some simple evalutions for test and demo purposes.
+
+  It contains also a `registry` mechanism that users should enrich."
   (:require
    [auto-opti                 :as-alias opti]
    [auto-opti.eval.montecarlo :as opt-montecarlo]))

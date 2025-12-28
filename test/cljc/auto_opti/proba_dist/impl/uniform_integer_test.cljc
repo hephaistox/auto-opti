@@ -7,61 +7,63 @@
    [auto-opti.proba-dist.distribution-protocol :as opt-distribution-prot]
    [auto-opti.proba-dist.impl.uniform-integer  :as sut]))
 
+(def seed #uuid "9fa7b74d-2414-4815-9cfd-a7b9af715b6a")
+
 (deftest uniform-test
   (testing "Uniform distribution returns elements in the range"
     (is (every? int?
                 (repeatedly 10
                             (fn []
-                              (-> (opt-prng-xoro/make)
+                              (-> (opt-prng-xoro/make seed)
                                   (sut/make 2 60)
                                   opt-distribution-prot/draw))))))
   (testing "Uniform distribution returns elements in the range"
     (is (= 31
-           (-> (opt-prng-xoro/make)
+           (-> (opt-prng-xoro/make seed)
                (sut/make 2 60)
                opt-distribution-prot/median)))
     (is (= #?(:clj 5/2
               :cljs 2.5)
-           (-> (opt-prng-xoro/make)
+           (-> (opt-prng-xoro/make seed)
                (sut/make 2 3)
                opt-distribution-prot/median))))
   (testing "Test uniform cumulative"
-    (is (zero? (-> (opt-prng-xoro/make)
+    (is (zero? (-> (opt-prng-xoro/make seed)
                    (sut/make 3 12)
                    (opt-distribution-prot/cumulative 3))))
     (is (= #?(:clj 1/2
               :cljs 0.5)
-           (-> (opt-prng-xoro/make)
+           (-> (opt-prng-xoro/make seed)
                (sut/make 3 13)
                (opt-distribution-prot/cumulative 8))))
     (is (= 1.0
-           (-> (opt-prng-xoro/make)
+           (-> (opt-prng-xoro/make seed)
                (sut/make 3 12)
                (opt-distribution-prot/cumulative 12)))))
   (testing "minimum"
     (is (= 3
-           (-> (opt-prng-xoro/make)
+           (-> (opt-prng-xoro/make seed)
                (sut/make 3 12)
                opt-distribution-prot/minimum))))
   (testing "maximum"
     (is (= 12
-           (-> (opt-prng-xoro/make)
+           (-> (opt-prng-xoro/make seed)
                (sut/make 3 12)
                opt-distribution-prot/maximum))))
   (testing "quantile"
     (is (opt-maths/approx= 0.001
                            4.8
-                           (-> (opt-prng-xoro/make)
+                           (-> (opt-prng-xoro/make seed)
                                (sut/make 3 12)
                                (opt-distribution-prot/quantile 0.2))))
     (is (opt-maths/approx= 0.001
                            7.5
-                           (-> (opt-prng-xoro/make)
+                           (-> (opt-prng-xoro/make seed)
                                (sut/make 3 12)
                                (opt-distribution-prot/quantile 0.5)))))
   (testing "Test uniform interquartile"
     (is (= 4.5
-           (-> (opt-prng-xoro/make)
+           (-> (opt-prng-xoro/make seed)
                (sut/make 3 12)
                opt-distribution-prot/iqr))))
   (testing "Test uniform interquartile"
@@ -71,6 +73,6 @@
             :median 7.5
             :q3 9.75
             :max 12}
-           (-> (opt-prng-xoro/make)
+           (-> (opt-prng-xoro/make seed)
                (sut/make 3 12)
                opt-distribution-prot/summary)))))

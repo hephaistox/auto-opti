@@ -1,5 +1,6 @@
 (ns auto-opti.prng.impl.tests
   "Prng tests."
+  {:no-doc true}
   (:require
    [auto-opti.sample :as opt-sample]))
 

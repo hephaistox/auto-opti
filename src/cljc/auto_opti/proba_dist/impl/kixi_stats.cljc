@@ -2,9 +2,10 @@
   "Proxy for kixi-stats distributions.
 
   See the [github repo](https://github.com/MastodonC/kixi.stats)."
+  {:no-doc true}
   (:require
    [auto-opti.proba-dist.distribution-protocol :as opt-distribution-prot]
-   [kixi.stats.distribution                      :as kixi-distribution]))
+   [kixi.stats.distribution                    :as kixi-distribution]))
 
 (defrecord Kixi [kixi-object]
   opt-distribution-prot/Distribution

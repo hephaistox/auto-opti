@@ -3,6 +3,7 @@
 
   Use this protocol to wrap some stateless implementations of a `prng`.
   To use prng implementing protocol, wraps it again with `PrngStatefulImpl`."
+  {:no-doc true}
   (:refer-clojure :exclude [next]))
 
 (defprotocol PRNGStateless

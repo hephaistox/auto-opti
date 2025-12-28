@@ -1,11 +1,12 @@
 (ns auto-opti.proba-dist.impl.normal
   "Normal distribution."
+  {:no-doc true}
   (:require
-   [auto-opti.proba-dist.distribution-protocol :as opt-dstb-prot]
-   [auto-opti.maths                              :as opt-maths]
-   [auto-opti.maths.gamma                        :as opt-maths-gamma]
-   [auto-opti.prng                               :as opt-prng]
-   [auto-opti.prng.stateful                      :as opt-prng-stateful]))
+   [auto-opti.maths                            :as opt-maths]
+   [auto-opti.maths.gamma                      :as opt-maths-gamma]
+   [auto-opti.prng                             :as opt-prng]
+   [auto-opti.prng.stateful                    :as opt-prng-stateful]
+   [auto-opti.proba-dist.distribution-protocol :as opt-dstb-prot]))
 
 (defn rand-normal
   [prng]

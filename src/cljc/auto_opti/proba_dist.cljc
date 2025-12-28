@@ -21,15 +21,16 @@
   * `seed` if no `prng` is provided, it is built with `seed`,
   * `prng-name` the pseudo random number generator that is used to generate the distribution."
   [params]
-  (if (map? params)
-    (let [{::opti/keys [registry dstb-name prng seed prng-name]} params]
-      (opt-distribution-factory/build (or registry distribution-registry)
-                                      (or dstb-name :uniform)
-                                      (or prng
-                                          (opt-prng/prng #::opti{:prng-name prng-name
-                                                                 :seed seed}))
-                                      params))
-    params))
+  (cond
+    (map? params) (let [{::opti/keys [registry dstb-name prng seed prng-name]} params]
+                    (opt-distribution-factory/build (or registry distribution-registry)
+                                                    (or dstb-name :uniform)
+                                                    (or prng
+                                                        (opt-prng/prng #::opti{:prng-name prng-name
+                                                                               :seed seed}))
+                                                    params))
+    (number? params) params
+    :else nil))
 
 (defn draw
   "Returns a random value following the `distribution`."

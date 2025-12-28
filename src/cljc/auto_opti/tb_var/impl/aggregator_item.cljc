@@ -3,6 +3,7 @@
   Many `aggregator-item` are contained in an `aggregator`.
 
   Note that no test mechanisms are here to check values of the `aggregator-item`, the `aggregate` and `aggregates` are here to deal with these tests and are responsible to built some valid `aggregator-item`."
+  {:no-doc true}
   (:require
    [auto-opti :as-alias opti]))
 

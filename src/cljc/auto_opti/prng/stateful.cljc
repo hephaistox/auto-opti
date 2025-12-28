@@ -4,6 +4,7 @@
   Statefulness is important to ensure:
   * Each call to `rnd` is modifying the state of the prng.
   * it is thread safe to use."
+  {:no-doc true}
   (:refer-clojure :exclude [rnd])
   (:require
    [cljc-long.core]))
