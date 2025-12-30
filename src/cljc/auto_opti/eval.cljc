@@ -6,8 +6,37 @@
    [auto-opti                 :as-alias opti]
    [auto-opti.eval.montecarlo :as opt-montecarlo]))
 
+(def id "Malli schema to name an evalution" :keyword)
+
+(def registry-schema
+  "Malli schema for an evaluation's registry."
+  [:map-of
+   id
+   [:map {:closed true}
+    [:doc :string]
+    [:rep :keyword]
+    [:valid-pars :function]
+    [:eval :function]]])
+
 (def registry
-  {:montecarlo-pi #::opti{:doc "Returns an evaluation of pi thanks to the montercarlo method."
-                          :rep :seed
-                          :valid-pars opt-montecarlo/valid-pars
-                          :eval opt-montecarlo/eval}})
+  "Registry of evaluations.
+
+  In that map, check keywords for eval names, and `:auto-opti/doc` for their description."
+  {:montecarlo-pi
+   #::opti{:doc
+           "`x` and `y` are drawn in an uniform distribution in `[-radius;radius]` interval.
+
+  * So the points at coordinatess (x,y) are in a square of edge `2*radius` and surface `4*radius*radius`.
+  * A point is in the circle where its distance from the center of the circle - the origin - is less that radius. This distance is (square root of x2 + y2)
+
+  * So, if we assume the distribution is perfect, the distribution between the circle and the square are based on their surface:
+      * square: total number of drawns -> 4*radius*radius
+      * circle: number of drawns with distance less than radius from the origin -> π*radius*radius
+
+  So dividing the total number of drawns regarding the numbers in the circle, we have:
+
+  * (nb-in / nb-total) = (/ π*radius*radius 4*radius*radius) = π/4
+  * π = 4*(nb-in/nb-total)"
+           :rep :seed
+           :valid-pars opt-montecarlo/valid-pars
+           :eval opt-montecarlo/eval}})

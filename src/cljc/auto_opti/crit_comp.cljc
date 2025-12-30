@@ -14,9 +14,10 @@
         (neg? res) :better
         :else :worst))))
 
-(def id "Criteria comparison name." :keyword)
+(def id "Malli schema to name a criteria comparison." :keyword)
 
-(def schema
+(def registry-schema
+  "Malli schema for a criteria comparison's registry."
   [:map-of
    id
    [:map {:closed true}
@@ -27,8 +28,8 @@
 (declare crit-comp-fn)
 
 (def default-registry
-  "The default `crit-comp` registry contains main criteria comparison implementations. See map's keys for a list of them."
-  {:hierarchise {:doc "Hierarchise the criteria."
+  "By default, the registry contains most common implementations. See map's keys for their names, and check `:doc` in submap to have a more detailed description."
+  {:hierarchise {:doc "Hierarchise the criteria, as defined in order."
                  :params-schema [:map [:order [:vector :map]]]
                  :f (fn [{::opti/keys [order]}]
                       (let [order (mapv (juxt crit-comp-fn ::opti/crit-name) order)]
@@ -40,13 +41,15 @@
    :weighted-sum {:doc "Weighted sum of criteria."
                   :params-schema [:map [:weights [:map-of :keyword [:or :int :double]]]]
                   :f (fn [{::opti/keys [weights]}]
-                       (fn [crit1 crit2]
-                         (let [c (compare (opt-weighted-sum/weighted-sum weights crit1)
-                                          (opt-weighted-sum/weighted-sum weights crit2))]
-                           (cond
-                             (zero? c) :equal
-                             (pos? c) :worst
-                             (neg? c) :better))))}
+                       (let [weights
+                             (into {} (remove (fn [[_ v]] (or (nil? v) (zero? v)))) weights)]
+                         (fn [crit1 crit2]
+                           (let [c (compare (opt-weighted-sum/weighted-sum weights crit1)
+                                            (opt-weighted-sum/weighted-sum weights crit2))]
+                             (cond
+                               (zero? c) :equal
+                               (pos? c) :worst
+                               (neg? c) :better)))))}
    :smaller {:doc "The smaller criteria is the smaller one according to `compare` function."
              :params-schema :nil
              :f (fn [_]
@@ -93,11 +96,3 @@
                    (get crit-comp-name)
                    (get :f))]
     (f crit-comp-pars)))
-
-(defn direct-eval
-  "Helper to compare `crit1` and `crit2` based on map describing the `crit-comp-pars`. For test only, crit-comp-fn once the crit-comp and use it multiple times instead."
-  [crit-comp-pars crit1 crit2]
-  (when-let [f (-> crit-comp-pars
-                   crit-comp-fn)]
-    (f crit1 crit2)))
-

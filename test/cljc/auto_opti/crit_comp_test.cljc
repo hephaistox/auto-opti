@@ -5,6 +5,14 @@
    #?(:clj [clojure.test :refer [deftest is testing]]
       :cljs [cljs.test :refer [deftest is testing] :include-macros true])))
 
+(defn- direct-eval
+  "Helper to compare `crit1` and `crit2` based on map describing the `crit-comp-pars`. For test only, crit-comp-fn once the crit-comp and use it multiple times instead."
+  [crit-comp-pars crit1 crit2]
+  ((-> crit-comp-pars
+       sut/crit-comp-fn)
+   crit1
+   crit2))
+
 (deftest direct-eval-test
   (is (nil? (sut/direct-eval #::opti{} 1 2)))
   (testing "Hierarchise"
