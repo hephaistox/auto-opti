@@ -14,7 +14,7 @@
        (ex-info
         "Not implemented. Leverage another prng or implement https://github.com/trystan/random-seed"
         {})))
-    (uuid-seed [_] nil)
+    (uuid-seed [_] (throw (ex-info "Not implemented." {})))
     (rnd-int [_ a b] (+ a (mod (rand) (- b a))))
     (rnd-double [_ a b] (+ a (mod (rand) (- b a)))))
 
