@@ -1,0 +1,1 @@
+gcc -o xoro256_test xoro256_test.cpp && ./xoro256_test
