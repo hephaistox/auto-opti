@@ -1,0 +1,69 @@
+#+title: auto-opti — end-to-end runnable example
+
+=auto-opti= deliberately ships building blocks, not a fixed pipeline:
+assembling them is the user's responsibility. This snippet shows one such
+assembly — a tiny random-search optimizer:
+
+#+begin_example
+prng + proba-dist  -> draw random candidate solutions
+a cost model       -> evaluate each candidate's criteria
+sample             -> summarize the batch of costs
+crit-comp          -> select the best candidate (hierarchical comparison)
+#+end_example
+
+The problem: pick a =(machine-speed, batch-size)= pair minimizing a cost,
+where cost trades off throughput against work-in-progress.
+
+Source of truth: [[file:end_to_end.clj][end_to_end.clj]]. Run all examples with =bb examples=.
+
+#+begin_src clojure
+(require '[auto-opti :as-alias opti])
+(require '[auto-opti.prng :as prng])
+(require '[auto-opti.proba-dist :as dstb])
+(require '[auto-opti.sample :as sample])
+(require '[auto-opti.crit-comp :as crit-comp])
+
+;; One shared, seeded prng drives every distribution -> fully reproducible.
+(def gen (prng/prng #::opti{:prng-name :xoroshiro128
+                            :seed #uuid "54b9758a-906f-4ec9-b1eb-1efef7f67e3b"}))
+
+;; Decision variables drawn from distributions sharing the prng.
+(def speed-dstb (dstb/distribution #::opti{:dstb-name :uniform :prng gen :a 1.0 :b 5.0}))
+(def batch-dstb (dstb/distribution #::opti{:dstb-name :uniform-int :prng gen :a 1 :b 20}))
+
+;; Cost model: candidate -> criteria map (lower is better).
+(defn evaluate [{:keys [speed batch]}]
+  (let [throughput-cost (/ 10.0 speed)   ; faster machine -> cheaper
+        wip-cost (* 0.5 batch)]          ; bigger batch -> more WIP
+    {:speed speed :batch batch :cost (+ throughput-cost wip-cost)}))
+
+;; Draw and evaluate a batch of candidates.
+(def candidates
+  (->> (repeatedly (fn [] {:speed (dstb/draw speed-dstb) :batch (dstb/draw batch-dstb)}))
+       (take 20)
+       (map evaluate)))
+
+;; Summarize the costs.
+(def costs (map :cost candidates))
+(sample/average costs)
+[(reduce min costs) (sample/median costs)]
+
+;; Select the best: smallest :cost wins (hierarchical, one criterion).
+(def better? (crit-comp/crit-comp-fn
+              #::opti{:crit-comp-name :hierarchise
+                      :order [#::opti{:crit-comp-name :smaller :crit-name :cost}]}))
+(def best
+  (reduce (fn [acc c] (if (= :better (better? c acc)) c acc))
+          (first candidates) (rest candidates)))
+(select-keys best [:speed :batch])
+(:cost best)
+#+end_src
+
+#+RESULTS:
+: === auto-opti end-to-end (random search) ===
+: candidates         : 20
+: mean cost          : (... a double ...)
+: min/median cost    : [(... min ...) (... median ...)]
+: best candidate     : {:speed (...), :batch (...)}
+: best cost          : (... the minimum cost ...)
+: OK: best == min cost

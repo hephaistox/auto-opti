@@ -1,0 +1,32 @@
+#+title: auto-opti.sample — runnable example
+
+=auto-opti.sample= provides descriptive statistics over plain collections
+of numbers: average, variance, standard deviation, median, midrange,
+frequencies. Useful to summarize the results of a batch of simulation
+draws.
+
+Source of truth: [[file:sample.clj][sample.clj]]. Run all examples with =bb examples=.
+
+#+begin_src clojure
+(require '[auto-opti.sample :as sample])
+
+(def xs [2 4 4 4 5 5 7 9])
+
+(sample/n xs)                          ;; => 8
+(sample/average xs)                    ;; => 5
+(sample/variance xs)                   ;; => 4.0
+(sample/standard-deviation xs)         ;; => 2.0
+(sample/median [1 10 14 17 2000])      ;; => 14   (odd count: middle element)
+(sample/median [1 10 20 1000])         ;; => 15   (even count: mean of middle two)
+(sample/midrange [2 98 13 10])         ;; => 50   ((min + max) / 2)
+#+end_src
+
+#+RESULTS:
+: data               : [2 4 4 4 5 5 7 9]
+: n                  : 8
+: average            : 5
+: variance           : 4.0
+: standard-deviation : 2.0
+: median (odd count) : 14
+: median (even count): 15
+: midrange           : 50

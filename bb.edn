@@ -55,6 +55,21 @@
         :requires [[auto-build.tasks.docs :as build-docs] [auto-build.echo :refer [level1-header]]]
         :task (-> (build-docs/docs level1-header "." (current-task) "gh-pages" "codox")
                   exit)}
+  examples
+  {:doc "Run every runnable doc example under docs/examples; fails if any throws."
+   :task
+   (let [dir (clojure.java.io/file "docs/examples")
+         files (->> (file-seq dir)
+                    (filter (fn [f] (clojure.string/ends-with? (.getName f) ".clj")))
+                    (sort-by (fn [f] (.getName f))))]
+     (when (empty? files) (println "No example files found under docs/examples") (System/exit 1))
+     (doseq [f files]
+       (let [path (.getPath f)
+             _ (println (str "\n--- Running " path " ---"))
+             {:keys [exit]}
+             (shell {:continue true} "clojure" "-M" "-e" (str "(load-file \"" path "\")"))]
+         (when-not (zero? exit) (println (str "FAILED: " path)) (System/exit exit))))
+     (println (str "\nAll " (count files) " examples ran successfully.")))}
   format {:doc "Format"
           :requires [[auto-build.tasks.formatting :as task-format]
                      [auto-build.echo :refer [level1-header]]]

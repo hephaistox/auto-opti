@@ -13,10 +13,10 @@
   [:map-of
    id
    [:map {:closed true}
-    [:doc :string]
-    [:rep :keyword]
-    [:valid-pars :function]
-    [:eval :function]]])
+    [::opti/doc :string]
+    [::opti/rep :keyword]
+    [::opti/valid-pars fn?]
+    [::opti/eval fn?]]])
 
 (def registry
   "Registry of evaluations.

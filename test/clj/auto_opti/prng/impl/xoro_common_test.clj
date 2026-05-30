@@ -19,3 +19,20 @@
     (is (= 57 (sut/remainder-unsigned 12345 256)) "12345 % 256 should be 57")
     (is (= 0 (sut/remainder-unsigned 100 10)) "Exact division should give 0")
     (is (= 5 (sut/remainder-unsigned -1 10)) "Unsigned -1 % 10 should be 5")))
+
+(deftest test-mix
+  (testing "mix (SplitMix64 finalizer) is deterministic and avalanches"
+    (is (= (sut/mix 0) (sut/mix 0)) "Same input gives same output")
+    (is (= (sut/mix 12345) (sut/mix 12345)) "Same input gives same output")
+    (is (not= (sut/mix 0) (sut/mix 1)) "Different inputs give different outputs")
+    (is (not= 0 (sut/mix 0)) "mix of 0 is non-zero (SplitMix64 increment)")
+    (is (every? integer? (map sut/mix [0 1 -1 Long/MAX_VALUE Long/MIN_VALUE]))
+        "Returns a long for any long input")))
+
+(deftest test-long->unit-float
+  (testing "long->unit-float:alt maps any long into [0, 1)"
+    (is (every? #(let [d (sut/long->unit-float:alt %)] (and (>= d 0.0) (< d 1.0)))
+                [0 1 -1 Long/MAX_VALUE Long/MIN_VALUE 123456789 -987654321])
+        "All results are within [0, 1)")
+    (is (= 0.0 (sut/long->unit-float:alt 0)) "Zero maps to 0.0")
+    (is (= (sut/long->unit-float:alt 42) (sut/long->unit-float:alt 42)) "Deterministic")))

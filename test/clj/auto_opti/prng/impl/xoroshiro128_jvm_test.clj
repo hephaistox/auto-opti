@@ -3,7 +3,6 @@
    [auto-opti.prng.advanced-tests        :refer [run-advanced-quality-tests]]
    [auto-opti.prng.impl.test-suites      :as test-suite]
    [auto-opti.prng.impl.xoroshiro128-jvm :as sut]
-   [auto-opti.prng.stateful              :as opt-prng-stateful]
    [clojure.test                         :refer [deftest is testing]]
    [criterium.core                       :as crit]))
 
@@ -16,53 +15,13 @@
 
 (deftest test-xoroshiro128-quality (test-suite/run-quality-tests sut/make-generators uuid-1 uuid-2))
 
-(deftest xoro-advanced-test
-  (is (run-advanced-quality-tests sut/make-generators uuid-1)
-      "Are chi2 tests, runs, gap, serial, collision and poker test passing"))
+(deftest xoro-advanced-test (run-advanced-quality-tests sut/make-generators uuid-1))
 
 ;; ============================================================================
-;; PRNG protocol (the registry-facing `make`)
+;; PRNG protocol (the registry-facing `make`) - shared lifecycle suite
 ;; ============================================================================
 
-(deftest prng-protocol-test
-  (testing "rnd-int stays in range"
-    (let [p (sut/make uuid-1)]
-      (is (every? #(and (>= % 0) (< % 100))
-                  (repeatedly 1000 #(opt-prng-stateful/rnd-int p 0 100))))))
-  (testing "rnd-double stays in range"
-    (let [p (sut/make uuid-1)]
-      (is (every? #(and (>= % 0.0) (< % 1.0))
-                  (repeatedly 1000 #(opt-prng-stateful/rnd-double p 0.0 1.0))))))
-  (testing "determinism - same seed, same sequence"
-    (let [seq-of (fn []
-                   (let [p (sut/make uuid-1)]
-                     (vec (repeatedly 50 #(opt-prng-stateful/rnd-int p 0 1000)))))]
-      (is (= (seq-of) (seq-of)))))
-  (testing "different seeds diverge"
-    (let [p1 (sut/make uuid-1)
-          p2 (sut/make uuid-2)]
-      (is (not= (vec (repeatedly 50 #(opt-prng-stateful/rnd-int p1 0 1000)))
-                (vec (repeatedly 50 #(opt-prng-stateful/rnd-int p2 0 1000)))))))
-  (testing "uuid-seed round-trips" (is (= uuid-1 (opt-prng-stateful/uuid-seed (sut/make uuid-1)))))
-  (testing "reset replays from the seed"
-    (let [p (sut/make uuid-1)
-          before (vec (repeatedly 10 #(opt-prng-stateful/rnd-int p 0 1000)))
-          _ (dotimes [_ 100] (opt-prng-stateful/rnd-int p 0 1000))
-          after (do (opt-prng-stateful/reset p)
-                    (vec (repeatedly 10 #(opt-prng-stateful/rnd-int p 0 1000))))]
-      (is (= before after))))
-  (testing "duplicate starts a fresh generator at the seed"
-    (let [p (sut/make uuid-1)
-          _ (dotimes [_ 100] (opt-prng-stateful/rnd-int p 0 1000))
-          d (opt-prng-stateful/duplicate p)
-          fresh (sut/make uuid-1)]
-      (is (= (vec (repeatedly 10 #(opt-prng-stateful/rnd-int d 0 1000)))
-             (vec (repeatedly 10 #(opt-prng-stateful/rnd-int fresh 0 1000)))))))
-  (testing "jump moves to a different stream"
-    (let [jumped (opt-prng-stateful/jump (sut/make uuid-1))
-          fresh (sut/make uuid-1)]
-      (is (not= (vec (repeatedly 10 #(opt-prng-stateful/rnd-int jumped 0 1000000)))
-                (vec (repeatedly 10 #(opt-prng-stateful/rnd-int fresh 0 1000000))))))))
+(deftest prng-protocol-test (test-suite/run-prng-protocol-tests sut/make uuid-1 uuid-2))
 
 ;; ============================================================================
 ;; Implementation-specific tests

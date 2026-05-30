@@ -1,0 +1,81 @@
+#+title: auto-opti — Runnable examples
+#+author: Anthony CAUMOND
+
+* What this is
+
+One small, *runnable* example per public =auto-opti= feature, plus an
+end-to-end snippet that assembles several features into a tiny
+optimization flow. Every example is real, executable Clojure code that
+constructs the feature through its public parameter-map + registry API,
+exercises it, and =println=s labeled output. Because the examples run as
+part of a =bb= task, they cannot silently rot: if the public API changes
+in a breaking way, the example throws and the task fails.
+
+* Source of truth vs. reading copy
+
+- The =*.clj= files are the *source of truth*. They actually run.
+- The =*.org= files are the *reading copies*. Each mirrors its =.clj=
+  sibling inside a =#+begin_src clojure ... #+end_src= block, followed by
+  the expected output. They exist so the examples render nicely in the
+  wiki / on GitHub; they are not what =bb examples= executes.
+
+When you change an example, edit the =.clj= first, re-run =bb examples=,
+then copy the code and refreshed output into the =.org=.
+
+* The mechanism
+
+The examples need no extra classpath: the project's base =:paths= in
+=deps.edn= already include =src/cljc= (and =src/clj=), so every
+=auto-opti.*= namespace resolves. Each example is therefore loaded with a
+plain:
+
+#+begin_src shell
+clojure -M -e "(load-file \"docs/examples/prng.clj\")"
+#+end_src
+
+A babashka task wires this up for the whole directory.
+
+* Running them
+
+Run the entire set (this is the verification gate — it exits non-zero on
+the first example that throws):
+
+#+begin_src shell
+bb examples
+#+end_src
+
+Run a single example directly:
+
+#+begin_src shell
+clojure -M -e "(load-file \"docs/examples/sample.clj\")"
+#+end_src
+
+* Why JVM (=clojure=), not ClojureScript
+
+The library is cross-platform =.cljc=, but some distributions are backed
+by =kixi/stats=, which is JVM-only, and the examples lean on those. So the
+examples run on the JVM via =clojure=. The feature *code* they call is
+still the same cross-platform code that runs under ClojureScript.
+
+* The examples
+
+| File              | Feature                          | Shows                                                        |
+|-------------------+----------------------------------+-------------------------------------------------------------|
+| =prng.clj=        | =auto-opti.prng=                 | seeded generator, =as-int= / =as-ints= / =as-double=        |
+| =proba_dist.clj=  | =auto-opti.proba-dist=           | uniform / normal / categorical =distribution= + =draw=      |
+| =sample.clj=      | =auto-opti.sample=               | average, variance, std-dev, median, midrange                |
+| =crit_comp.clj=   | =auto-opti.crit-comp=            | hierarchise / weighted-sum / smaller comparators            |
+| =eval.clj=        | =auto-opti.eval=                 | registry lookup, =valid-pars=, montecarlo-pi evaluation     |
+| =tb_var.clj=      | =auto-opti.tb-var=               | additive / latest / aggregated time-based variables         |
+| =maths.clj=       | =auto-opti.maths= (+ gamma, ws)  | square/sqrt/pow/clamp/polynomial, gamma, weighted-sum       |
+| =routings.clj=    | =auto-opti.routings=             | jobshop routes, =machines=, =start=, =pick-route-id=        |
+| =end_to_end.clj=  | several, assembled               | random-search optimizer: prng+dstb → eval → sample → select |
+
+* Note on expected output
+
+A fixed seed makes each generator deterministic, so the numeric output is
+stable run to run. The exact values shown in the =.clj= comments and =.org=
+blocks are the values asserted by the corresponding test namespaces under
+=test/cljc/=, so they double as a cross-check. Where a line depends on a
+longer pseudo-random stream the comment describes the shape rather than
+pinning every digit; =bb examples= still verifies that the code runs.

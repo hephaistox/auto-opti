@@ -1,7 +1,9 @@
 (ns auto-opti.prng
   "Pseudo random number generator.
 
-  Use this feature to build a `prng` based on a parameter map. This hides the complexity of the different random number generator, as many different implementations exists and none superseeds all others."
+  Use this feature to build a `prng` based on a parameter map. This hides the complexity of the different random number generator, as many different implementations exists and none superseeds all others.
+
+  SECURITY - these generators (xoroshiro/xoshiro and the host built-in) are NOT cryptographically secure. Never use them for keys, tokens, password salts, nonces or any security-sensitive randomness; use a CSPRNG instead. Also note the default seed is a fixed uuid, so a `prng` built without an explicit `::opti/seed` always produces the SAME stream - intended for reproducible simulation, but a footgun anywhere uniqueness is assumed."
   (:require
    [auto-opti                        :as-alias opti]
    [auto-opti.prng.impl.built-in     :as opt-prng-built-in]
@@ -11,7 +13,28 @@
    #?(:clj [auto-opti.prng.impl.xoroshiro256-jvm :as opt-prng-xoro-256])
    [auto-opti.prng.stateful          :as opt-prng-stateful]))
 
-(defn- ->uuid [seed] (if (string? seed) (parse-uuid seed) seed))
+(def seed-schema
+  "Malli schema documenting `::opti/seed`: a uuid, or a string parseable as a uuid."
+  [:or
+   :uuid
+   [:and
+    :string
+    [:fn {:error/message "not a valid uuid string"}
+     #(some? (parse-uuid %))]]])
+
+(defn- ->uuid
+  "Coerce a `seed` (uuid or uuid string) to a uuid, throwing a clear error on
+  malformed input instead of failing later with an obscure exception."
+  [seed]
+  (cond
+    (uuid? seed) seed
+    (string? seed) (or (parse-uuid seed)
+                       (throw (ex-info "Invalid ::opti/seed: string is not a valid uuid"
+                                       {:seed seed
+                                        :schema seed-schema})))
+    :else (throw (ex-info "Invalid ::opti/seed: expected a uuid or uuid string"
+                          {:seed seed
+                           :schema seed-schema}))))
 
 (def prng-registry
   "Registry of prngs, with a function turning a seed into an implementation of `opt-prng-stateful/PRNG`.

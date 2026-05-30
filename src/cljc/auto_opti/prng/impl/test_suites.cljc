@@ -2,8 +2,9 @@
   "Prng test suites."
   {:no-doc true}
   (:require
-   [auto-opti.sample :as opt-sample]
-   [clojure.test     :refer [is testing]]))
+   [auto-opti.prng.stateful :as opt-prng-stateful]
+   [auto-opti.sample        :as opt-sample]
+   [clojure.test            :refer [is testing]]))
 
 (defn dstb-uniformity
   "If the coefficient of variation (i.e. `cv`) is lower than `max-cv`, returns nil.
@@ -29,7 +30,7 @@
       (is (contains? prng :state) "Should have :state")
       (is (contains? prng :seed) "Should have :seed")
       (is (contains? prng :meta) "Should have :meta")
-      (is (contains? (:meta prng) :period) "Meta should have :period")
+      (is (contains? (:meta prng) :state-bits) "Meta should have :state-bits")
       (is (contains? (:meta prng) :platform) "Meta should have :platform")
       (is (contains? prng :next-double) "Should have :next-double")
       (is (contains? prng :next-raw) "Should have :next-raw")
@@ -124,7 +125,8 @@
           gen2 ((:next-int prng2) 0 100)
           ;; Advance prng1
           val1 (gen1)
-          _ (repeatedly 50 gen1)
+          ;; force the lazy seq so prng1 actually advances 50 steps
+          _ (dorun (repeatedly 50 gen1))
           ;; prng2 should still start from beginning
           val2 (gen2)]
       (is (= val1 val2) "First value is the same")
@@ -140,3 +142,47 @@
   (test-determinism make-fn uuid-or-seed-1)
   (test-different-seeds make-fn uuid-or-seed-1 uuid-or-seed-2)
   (test-state-independence make-fn uuid-or-seed-1))
+
+(defn run-prng-protocol-tests
+  "Exercise the stateful `PRNG` protocol lifecycle for a `make` fn (UUID -> PRNG).
+
+  Shared by the fast-variant test namespaces (xoroshiro128-jvm, xoroshiro256-jvm,
+  xoroshiro128-js) so the lifecycle assertions live in one place."
+  [make uuid-1 uuid-2]
+  (testing "rnd-int stays in range"
+    (let [p (make uuid-1)]
+      (is (every? #(and (>= % 0) (< % 100))
+                  (repeatedly 1000 #(opt-prng-stateful/rnd-int p 0 100))))))
+  (testing "rnd-double stays in range"
+    (let [p (make uuid-1)]
+      (is (every? #(and (>= % 0.0) (< % 1.0))
+                  (repeatedly 1000 #(opt-prng-stateful/rnd-double p 0.0 1.0))))))
+  (testing "determinism - same seed produces the same sequence"
+    (let [seq-of #(let [p (make uuid-1)]
+                    (vec (repeatedly 50 (fn [] (opt-prng-stateful/rnd-int p 0 1000)))))]
+      (is (= (seq-of) (seq-of)))))
+  (testing "different seeds diverge"
+    (let [p1 (make uuid-1)
+          p2 (make uuid-2)]
+      (is (not= (vec (repeatedly 50 #(opt-prng-stateful/rnd-int p1 0 1000)))
+                (vec (repeatedly 50 #(opt-prng-stateful/rnd-int p2 0 1000)))))))
+  (testing "uuid-seed round-trips" (is (= uuid-1 (opt-prng-stateful/uuid-seed (make uuid-1)))))
+  (testing "reset replays from the seed"
+    (let [p (make uuid-1)
+          before (vec (repeatedly 10 #(opt-prng-stateful/rnd-int p 0 1000)))
+          _ (dotimes [_ 100] (opt-prng-stateful/rnd-int p 0 1000))
+          after (do (opt-prng-stateful/reset p)
+                    (vec (repeatedly 10 #(opt-prng-stateful/rnd-int p 0 1000))))]
+      (is (= before after))))
+  (testing "duplicate starts a fresh generator at the seed"
+    (let [p (make uuid-1)
+          _ (dotimes [_ 100] (opt-prng-stateful/rnd-int p 0 1000))
+          d (opt-prng-stateful/duplicate p)
+          fresh (make uuid-1)]
+      (is (= (vec (repeatedly 10 #(opt-prng-stateful/rnd-int d 0 1000)))
+             (vec (repeatedly 10 #(opt-prng-stateful/rnd-int fresh 0 1000)))))))
+  (testing "jump moves to a different stream"
+    (let [jumped (opt-prng-stateful/jump (make uuid-1))
+          fresh (make uuid-1)]
+      (is (not= (vec (repeatedly 10 #(opt-prng-stateful/rnd-int jumped 0 1000000)))
+                (vec (repeatedly 10 #(opt-prng-stateful/rnd-int fresh 0 1000000))))))))

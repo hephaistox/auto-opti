@@ -99,7 +99,7 @@
   (let [state (uuid->state uuid-seed)]
     {:state state
      :seed uuid-seed
-     :meta {:period 128
+     :meta {:state-bits 128
             :platform :clojure}
      :next-double (fn [a b] (xoro-common/next-double-fn xoroshiro-next! state a b))
      :next-raw (fn [] (xoro-common/next-raw-fn xoroshiro-next! state))

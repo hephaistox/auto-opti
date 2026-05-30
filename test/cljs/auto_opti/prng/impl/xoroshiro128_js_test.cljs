@@ -53,22 +53,9 @@
       (is (= reference-values-state-1-2 actual)
           "JS core should match the canonical C reference bit for bit"))))
 
-(deftest range-and-determinism
-  (testing "rnd-int stays in range"
-    (let [p (sut/make uuid-1)]
-      (is (every? #(and (>= % 0) (< % 100)) (repeatedly 1000 #(stateful/rnd-int p 0 100))))))
-  (testing "rnd-double stays in range"
-    (let [p (sut/make uuid-1)]
-      (is (every? #(and (>= % 0.0) (< % 1.0)) (repeatedly 1000 #(stateful/rnd-double p 0.0 1.0))))))
-  (testing "determinism - same seed, same sequence"
-    (let [seq-of (fn []
-                   (let [p (sut/make uuid-1)] (vec (repeatedly 50 #(stateful/rnd-int p 0 1000)))))]
-      (is (= (seq-of) (seq-of)))))
-  (testing "different seeds diverge"
-    (let [p1 (sut/make uuid-1)
-          p2 (sut/make uuid-2)]
-      (is (not= (vec (repeatedly 50 #(stateful/rnd-int p1 0 1000)))
-                (vec (repeatedly 50 #(stateful/rnd-int p2 0 1000))))))))
+;; Shared stateful-protocol lifecycle suite (range, determinism, reset,
+;; duplicate, jump, ...). Same suite as the JVM fast variants.
+(deftest prng-protocol (test-suite/run-prng-protocol-tests sut/make uuid-1 uuid-2))
 
 (deftest uniformity
   ;; With 10 equiprobable buckets at n=10000 the expected coefficient of
@@ -77,27 +64,6 @@
   (testing "Uniformity coefficient of variation stays below 5"
     (let [p (sut/make uuid-1)]
       (is (nil? (test-suite/dstb-uniformity (stateful/as-ints p 10000 0 10) 5))))))
-
-(deftest protocol-lifecycle
-  (testing "uuid-seed round-trips" (is (= uuid-1 (stateful/uuid-seed (sut/make uuid-1)))))
-  (testing "reset replays from the seed"
-    (let [p (sut/make uuid-1)
-          before (vec (repeatedly 10 #(stateful/rnd-int p 0 1000)))
-          _ (dotimes [_ 100] (stateful/rnd-int p 0 1000))
-          after (do (stateful/reset p) (vec (repeatedly 10 #(stateful/rnd-int p 0 1000))))]
-      (is (= before after))))
-  (testing "duplicate starts a fresh generator at the seed"
-    (let [p (sut/make uuid-1)
-          _ (dotimes [_ 100] (stateful/rnd-int p 0 1000))
-          d (stateful/duplicate p)
-          fresh (sut/make uuid-1)]
-      (is (= (vec (repeatedly 10 #(stateful/rnd-int d 0 1000)))
-             (vec (repeatedly 10 #(stateful/rnd-int fresh 0 1000)))))))
-  (testing "jump moves to a different stream"
-    (let [jumped (stateful/jump (sut/make uuid-1))
-          fresh (sut/make uuid-1)]
-      (is (not= (vec (repeatedly 10 #(stateful/rnd-int jumped 0 1000000)))
-                (vec (repeatedly 10 #(stateful/rnd-int fresh 0 1000000))))))))
 
 (deftest registered-in-public-api
   (testing ":xoroshiro128-js is reachable through the public prng registry"

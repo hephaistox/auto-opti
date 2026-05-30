@@ -24,7 +24,8 @@
         s1 (xoro-common/mix s0)
         s2 (xoro-common/mix lsb)
         s3 (xoro-common/mix s2)]
-    (long-array (if (and (zero? s0) (zero? s1)) [1 0 0 0] [s0 s1 s2 s3]))))
+    ;; xoshiro requires a non-zero state: only fall back when all four words are zero
+    (long-array (if (and (zero? s0) (zero? s1) (zero? s2) (zero? s3)) [1 0 0 0] [s0 s1 s2 s3]))))
 
 (defn xoroshiro-next!
   "Generate next value and update state.
@@ -115,7 +116,7 @@
   (let [state (uuid->state uuid-seed)]
     {:state state
      :seed uuid-seed
-     :meta {:period 256
+     :meta {:state-bits 256
             :platform :clojure}
      :next-double (fn [a b] (xoro-common/next-double-fn xoroshiro-next! state a b))
      :next-raw (fn [] (xoro-common/next-raw-fn xoroshiro-next! state))

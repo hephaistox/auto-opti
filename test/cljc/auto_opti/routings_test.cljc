@@ -11,7 +11,12 @@
   (is (= [:m1 :m2 :m3 :m4]
          (sut/machines #::opti{:routes {:blue {:operations [{:m :m4} {:m :m2} {:m :m1}]}
                                         :purple {:operations [{:m :m4} {:m :m3} {:m :m1}]}}}))
-      "Extract machines"))
+      "Extract machines")
+  (is (empty? (sut/machines #::opti{:routes {}})) "No routes yields no machines")
+  (is (empty? (sut/machines {})) "Missing routes key yields no machines")
+  (is (= [:m1 :m2]
+         (sut/machines #::opti{:routes {:blue {:operations [{:m :m2} {:m :m1} {:m :m2}]}}}))
+      "Machines are de-duplicated and sorted within a single route"))
 
 (deftest start-test
   (is (= #::opti{:routes {}

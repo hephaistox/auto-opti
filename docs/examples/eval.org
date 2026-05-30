@@ -1,0 +1,34 @@
+#+title: auto-opti.eval — runnable example
+
+=auto-opti.eval= exposes a =registry= of evaluations. Each entry is a map
+with a =:valid-pars= validator and an =:eval= function. An evaluation
+turns a model + a representation (=:rep=) into a numeric solution. The
+built-in =:montecarlo-pi= evaluation approximates pi by sampling points in
+a square and counting those inside the inscribed circle.
+
+Source of truth: [[file:eval.clj][eval.clj]]. Run all examples with =bb examples=.
+
+#+begin_src clojure
+(require '[auto-opti :as-alias opti])
+(require '[auto-opti.eval :as eval])
+
+;; Registry entries use auto-opti-namespaced keys.
+(def montecarlo (get eval/registry :montecarlo-pi))
+(def evaluate (::opti/eval montecarlo))
+(def valid-pars (::opti/valid-pars montecarlo))
+
+(def model {:radius 100 :iterations 100000})
+(def rep {:seed #uuid "6db832f7-c10a-414a-b08b-eb5ef1d9b4fe"})
+
+;; Validate the model: nil means valid.
+(valid-pars {} nil model)                          ;; => nil
+(valid-pars {} nil {:radius "r" :iterations "i"})  ;; => {:model {:error ...}}
+
+;; Run the evaluation: [params iterator-fn model rep].
+(evaluate {} nil model rep)            ;; => 3.14... (within 0.01 of Math/PI)
+#+end_src
+
+#+RESULTS:
+: valid-pars (ok)    : nil
+: valid-pars (bad)   : {:model {:error {:radius [...] :iterations [...]} ...}}
+: pi approximation   : 3.14... (within 0.01 of Math/PI)

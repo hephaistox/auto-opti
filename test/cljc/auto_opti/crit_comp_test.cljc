@@ -184,8 +184,26 @@
   (testing "smaller"
     (is (= :better (direct-eval #::opti{:crit-comp-name :smaller} 12 20)) "crit1 is smaller")
     (is (= :equal (direct-eval #::opti{:crit-comp-name :smaller} 12 12)) "criteria are equal")
-    (is (= :worst (direct-eval #::opti{:crit-comp-name :smaller} 20 12)) "crit2 is smaller"))
+    (is (= :worst (direct-eval #::opti{:crit-comp-name :smaller} 20 12)) "crit2 is smaller")
+    (is (= :nc (direct-eval #::opti{:crit-comp-name :smaller} nil 12))
+        "nil crit1 is not comparable")
+    (is (= :nc (direct-eval #::opti{:crit-comp-name :smaller} 12 nil))
+        "nil crit2 is not comparable")
+    (is (= :nc (direct-eval #::opti{:crit-comp-name :smaller} nil nil))
+        "two nil are not comparable"))
   (testing "bigger"
     (is (= :worst (direct-eval #::opti{:crit-comp-name :bigger} 12 20)) "crit2 is bigger")
     (is (= :equal (direct-eval #::opti{:crit-comp-name :bigger} 12 12)) "criteria are equal")
-    (is (= :better (direct-eval #::opti{:crit-comp-name :bigger} 20 12)) "crit1 is bigger")))
+    (is (= :better (direct-eval #::opti{:crit-comp-name :bigger} 20 12)) "crit1 is bigger")
+    (is (= :nc (direct-eval #::opti{:crit-comp-name :bigger} nil 12)) "nil crit1 is not comparable")
+    (is (= :nc (direct-eval #::opti{:crit-comp-name :bigger} 12 nil))
+        "nil crit2 is not comparable")))
+
+(deftest crit-comp-fn-test
+  (testing "An unknown crit-comp-name yields no comparator."
+    (is (nil? (sut/crit-comp-fn #::opti{:crit-comp-name :does-not-exist}))))
+  (testing "An explicit empty registry yields no comparator even for a known name."
+    (is (nil? (sut/crit-comp-fn #::opti{:registry {}
+                                        :crit-comp-name :smaller}))))
+  (testing "The default registry validates against the registry schema names being keywords."
+    (is (every? keyword? (keys sut/default-registry)))))

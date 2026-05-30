@@ -3,155 +3,126 @@
 #+todo: TODO IN-PROGRESS | DONE
 
 * Context
-Branch =comp-for-js-pb= is a PRNG refactor mid-flight; it does not currently
-build/test green. This list takes the branch to a steady state: the in-flight
+Branch =comp-for-js-pb= started as a PRNG refactor mid-flight that did not
+build/test green. This list took the branch to a steady state: the in-flight
 PRNG work compiles and passes, every public feature is comprehensively tested,
 security boundaries are evaluated and documented, and each feature has a
-runnable org-babel example.
+runnable org-babel example. As of this pass =bb bp= (format → lint → clj-test →
+cljs-node-test) and =bb examples= are green.
 
-Two decisions shape the rest of the work:
-- *Canonical PRNG abstraction* — the cljc protocol =auto-opti.prng.stateful/PRNG=
-  vs. the new clj map-of-fns shape (see [[*Unify the two PRNG abstractions and register clj impls][task 5]]).
-- *Scope of =iterative.descent== for this branch (see [[*Finish or quarantine the iterative.descent algorithm][task 10]]).
+Two decisions that shaped the work:
+- *Canonical PRNG abstraction* — kept the cljc protocol
+  =auto-opti.prng.stateful/PRNG= as canonical; the fast clj/cljs impls now
+  implement it directly (map-of-fns kept only as =make-generators= for
+  benchmarks / the map-based quality suite). See task 5.
+- *Scope of =iterative.descent== — quarantined as experimental (task 10).
 
 * Stabilize the in-flight PRNG refactor
 ** DONE 1. Fix broken namespace references in PRNG tests
-=test/clj/auto_opti/prng/impl/reference_implementation.clj= requires
-=auto-opti.prng.impl.xoro128=, which does not exist (the ns is
-=auto-opti.prng.impl.xoroshiro128=). The =comment= block in
-=test/clj/auto_opti/prng/advanced_tests.clj= references the same wrong =xoro128=
-alias. Update both to the real namespace so the file compiles.
+The reference + advanced-test namespaces now point at the real
+=auto-opti.prng.impl.xoroshiro128-jvm= namespace.
 
 ** DONE 2. Restore dstb-uniformity so cljc PRNG tests compile
-The refactor renamed =prng/impl/tests.cljc= → =prng/impl/test_suites.cljc= but
-dropped the =dstb-uniformity= fn. Both =test/cljc/.../built_in_test.cljc= and
-=xoroshiro128_test.cljc= still call =opt-prng-tests/dstb-uniformity=, so they now
-fail to resolve. Either re-add =dstb-uniformity= to =test_suites.cljc= or rewrite
-those two tests against the new suite API. Decide and apply consistently.
+=dstb-uniformity= lives in =prng/impl/test_suites.cljc= and both cljc tests
+resolve it again.
 
 ** DONE 3. Complete xoro-common extraction (fix xoroshiro256 compile)
-=src/clj/.../xoroshiro256.clj= requires =next-int-fn=, =next-raw-fn=,
-=next-double-fn=, =next-int-fn-uniformity-efficient= from =xoro-common=, but those
-fns live in =xoroshiro128.clj=, not =xoro-common.clj= (which only has D-0x3FF,
-long->unit-float:alt, rotl, remainder-unsigned, mix). Move/generalize the
-generator fns into =xoro-common= so they take the =next!= step fn (the "gigogne"
-design noted in the xoroshiro128 TODO: next-int should build on next-raw), then
-have both 128 and 256 consume them. xoroshiro256 currently cannot load.
+The generic =next-raw-fn= / =next-int-fn= / =next-int-fn-uniformity-efficient= /
+=next-double-fn= factories (plus =raw->int= / =raw->double=) now live in
+=xoro-common= and take the algorithm =next!= as first arg; both 128 and 256
+consume them.
 
-** TODO 4. Fix xoroshiro256 correctness bugs
-In =src/clj/.../xoroshiro256.clj=:
-- =uuid->state= docstring says "128-bit" and the non-zero-state guard only checks
-  s0/s1 then falls back to =[1 0 0 0]= — it ignores s2/s3 and the comment logic is
-  copied from 128.
-- =:meta {:period 256}= is ambiguous (state bits vs. actual 2^256-1 period) and
-  inconsistent with how 128 sets it.
-- =:next-raw= returns =(next-raw-fn ...)= (a fn) while xoroshiro128's =:next-raw=
-  returns a value — unify the shape.
-Align with the corrected xoro-common API.
+** DONE 4. Fix xoroshiro256 correctness bugs
+- =uuid->state= docstring corrected to "256-bit state [s0 s1 s2 s3]"; the
+  non-zero-state guard now checks all four words before falling back to
+  =[1 0 0 0]=.
+- =:meta {:period 256}= renamed to the unambiguous =:state-bits 256= (128 too,
+  for consistency; the test suite checks =:state-bits=).
+- =:next-raw= shape unified across 128 and 256 (both return generator factories
+  via =make-generators=).
 
-** TODO 5. Unify the two PRNG abstractions and register clj impls
-Two parallel PRNG models now exist: the cljc protocol
-=auto-opti.prng.stateful/PRNG= (used by =auto-opti.prng/prng-registry=) and the
-new clj map-of-fns shape (={:state :seed :meta :next-int :next-raw :next-double
-:next-intu}=). The new clj xoroshiro128/256 are unreachable from the public
-=auto-opti.prng/prng= API. Decide one canonical abstraction (or write an adapter
-from the map-of-fns to the PRNG protocol), then add the JVM xoroshiro impls to
-=prng-registry= so users can select them. Resolve the TODO list embedded in
-xoroshiro128.clj (scrambler-as-parameter, return-type vs. scrambler) as part of
-this.
+** DONE 5. Unify the two PRNG abstractions and register clj impls
+The fast JVM/JS impls now implement =auto-opti.prng.stateful/PRNG= directly
+(=make=) and are reachable from =prng-registry= as =:xoroshiro128-jvm=,
+=:xoroshiro256-jvm= and =:xoroshiro128-js=. The map-of-fns shape survives only as
+=make-generators= for benchmarking/the map-based suite.
+Note: the embedded "scrambler-as-parameter / return-type-vs-scrambler" TODO list
+was removed rather than implemented — parameterising the scrambler is left as
+optional future work, not needed for the current variants.
 
-** TODO 6. Wire src/clj and test/clj into build, lint, and CI
-=deps.edn= has =:paths ["src/cljc"]= and the clj test runner targets =-d
-test/cljc=, so none of the new =src/clj= / =test/clj= code is compiled, linted, or
-run by =bb clj-test= / =bb gha= / CI. Add a JVM-only alias/path that includes
-=src/clj= and =test/clj= (keeping them out of the cljs builds, since they use
-java.util.UUID and Long static methods), update the =clj-test= task to discover
-=test/clj=, and confirm =bb lint= covers =src/clj=. Verify =bb bp= runs the new
-tests green.
+** DONE 6. Wire src/clj and test/clj into build, lint, and CI
+=:paths= includes =src/clj=; the =:test-clj= alias discovers =test/clj= (and
+excludes =^:benchmark=); =:cljs-deps= carries =src/cljs= + =test/cljs=; =bb lint=
+covers =src/clj= and =src/cljs=. =bb bp= runs them all green.
 
-** TODO 7. Fix broken/flaky PRNG benchmark and statistical tests
-In =test/clj/.../xoroshiro128_test.clj=, =xoro-time-efficiency= is broken:
-=(< x)= with one arg is always true, and =(< dur 1.4387971312235925E-5 1.01E-8)=
-is always false; thresholds are machine-specific and =criterium/benchmark= makes
-the suite very slow. Move benchmarks out of the default CI test path (separate
-alias or =^:benchmark= metadata excluded by the runner) and assert correctly.
-Also: =xoro-advanced-test= misuses =is= (wraps a fn that returns nil with a
-message arg), and =test-state-independence= in test_suites.cljc realizes nothing
-via lazy =(repeatedly 50 gen1)= so it never advances state. Fix all three.
+** DONE 7. Fix broken/flaky PRNG benchmark and statistical tests
+- =xoro-time-efficiency= rewritten with correct two-arg =<= comparisons and
+  tagged =^:benchmark= (excluded from the default runner via =-e :benchmark=).
+- =xoro-advanced-test= no longer wraps the suite in a redundant outer =is= (its
+  inner assertions are the real ones).
+- =test-state-independence= now forces the lazy =(repeatedly 50 gen1)= with
+  =dorun= so prng1 actually advances.
 
-** TODO 8. Add tests for xoro-common, xoroshiro256, and C reference parity
-Add direct unit tests for =xoro-common= (=mix= determinism, =long->unit-float:alt=
-returns [0,1), =rotl=/=remainder-unsigned= edge cases already partly covered). Add
-a full xoroshiro256 test mirroring the 128 quality + advanced suites. Generate
-xoroshiro256 reference values via =test/c= (extend =xoro_test.cpp= / =run=) and add
-a bit-exact reference-comparison test like =reference_implementation.clj= does for
-128.
+** DONE 8. Add tests for xoro-common, xoroshiro256, and C reference parity
+- Direct =xoro-common= tests for =mix= (determinism/avalanche) and
+  =long->unit-float:alt= (range [0,1)).
+- Full =xoroshiro256= quality + advanced + protocol tests.
+- Bit-exact C reference: =test/c/xoro256_test.cpp= + =run256=, asserted in
+  =reference-implementation-test=.
+- Redundancy removed: the protocol lifecycle assertions are factored into
+  =test-suites/run-prng-protocol-tests=, shared by the 128-jvm, 256-jvm and js
+  test namespaces.
 
 * Comprehensive test coverage
-** TODO 9. Cover untested feature namespaces with tests
-These src namespaces have no matching test: =auto-opti.eval= (top-level registry
-dispatch / valid-pars / eval wiring — only montecarlo is tested),
-=tb_var/impl/storage_strategy= (shared protocol), =tb_var/impl/var_aggregated=,
-and =tb_var/protocol=. Add focused tests for each. Audit existing feature tests
-(proba-dist, tb-var, sample, crit-comp, routings, maths) for edge-case gaps
-(empty inputs, nil handling, boundary ranges) and fill the obvious holes so every
-public feature is comprehensively covered.
+** DONE 9. Cover untested feature namespaces with tests
+Added =auto-opti.eval-test=, =tb-var.protocol-test=,
+=tb-var.impl.storage-strategy-test=, =tb-var.impl.var-aggregated-test=, plus
+edge-case additions to =crit-comp= and =routings= tests. While testing =eval=,
+found and fixed a real bug: =eval/registry-schema= used a bare (invalid) malli
+=:function= schema and unqualified keys — now =fn?= with =::opti=-qualified keys,
+so the registry validates against its own schema.
 
-** TODO 10. Finish or quarantine the iterative.descent algorithm
-=src/cljc/auto_opti/iterative/descent.cljc= looks unfinished: it has a stray
-=(copy-rep)= call with no args, an unused =_ty= binding, =best= is bound to nil
-then dereferenced as =(:rep best)=, and there are =;;TODO= markers. It is marked
-={:no-doc true}= and has no test. Decide: either complete the stochastic descent
-(correct the loop, thread =best=/=tx= properly) and add tests, or explicitly mark
-it experimental/out-of-scope so it doesn't read as shipped API. This blocks "all
-features tested" being meaningful.
+** DONE 10. Finish or quarantine the iterative.descent algorithm
+Quarantined: =stochastic= now throws =ex-info= "not implemented yet" (guard-by-
+throw), the namespace docstring marks it EXPERIMENTAL / not public, and the
+unfinished loop is preserved as a documented =comment= sketch listing the known
+defects. A test pins the not-implemented contract.
 
 * Security evaluation
 Note: no =eval= / =read-string= / =load-string= / =slurp= / =spit= / shell-exec
 sinks exist anywhere in =src/=. The surface is small and concentrated in PRNG
 semantics.
 
-** TODO 11. Document PRNG security boundaries (not cryptographic)
-xoroshiro and the host built-in generators are NOT cryptographically secure. Add
-explicit warnings to =auto-opti.prng= (and impl) docstrings and the prng wiki
-page: never use for keys, tokens, password salts, or any security-sensitive
-randomness; use a CSPRNG instead. Also document that the default fixed seed
-(=#uuid "54b9758a-..."=) makes every default PRNG produce the identical stream —
-intended for reproducible simulation, a footgun anywhere uniqueness is assumed.
+** DONE 11. Document PRNG security boundaries (not cryptographic)
+=auto-opti.prng= docstring now warns the generators are NOT cryptographically
+secure (never use for keys/tokens/salts/nonces; use a CSPRNG) and flags the
+fixed-default-seed footgun (every default =prng= produces the same stream).
+Follow-up: mirror this onto the prng wiki page (=docs/wiki/=, a separate git
+repo not touched here).
 
-** TODO 12. Resolve thread-safety contract mismatch and seed validation
-=stateful/PRNG= docstring claims "thread safe to use", but the new clj map-of-fns
-impls mutate a shared =long-array= with =aset= (no synchronization) and
-xoroshiro256's own docstring says "Not thread-safe". Reconcile: either make the
-contract honest (document single-threaded / per-thread instance, use
-=duplicate=/=jump= for parallelism) or provide a genuinely safe variant.
-Separately, harden seed handling: =auto-opti.prng/prng= calls =parse-uuid= on
-string seeds, which throws on malformed input — add a Malli spec / graceful
-validation for =::opti/seed= rather than an uncaught exception.
+** DONE 12. Resolve thread-safety contract mismatch and seed validation
+=stateful/PRNG= docstring made honest: thread-safety is implementation-dependent
+(=:xoroshiro128= safe; the in-place fast variants are not — use =duplicate= per
+thread). Seed handling hardened: =auto-opti.prng/->uuid= validates the seed
+(=seed-schema=) and throws a clear =ex-info= on malformed input instead of a
+later obscure NPE.
 
 * Runnable documentation (org-babel)
-** TODO 13. Set up org-babel Clojure tooling for runnable docs
-Establish the mechanism for executable =.org= examples so feature docs can run
-real code with output. Choose an approach (org-babel with CIDER/clojure-mode, or
-babashka-executed =#+begin_src clojure= blocks), document setup in the repo, and
-add a =bb= task to tangle/run example blocks. Goal: examples are verifiable, not
-just illustrative, so they don't rot. The existing wiki lives under =docs/wiki/=
-as =.org= files — decide whether examples go there or in a new =docs/examples/=.
+** DONE 13. Set up org-babel Clojure tooling for runnable docs
+Runnable examples live under =docs/examples/= as plain =.clj= files (source of
+truth, run on the JVM via =clojure -M -e "(load-file ...)"=) mirrored by =.org=
+files with =#+begin_src clojure= blocks and expected output. A =bb examples=
+task runs every example and fails if any throws. See =docs/examples/README.org=.
 
-** TODO 14. Write runnable .org babel examples for every feature
-Author one runnable org-babel example per public feature, extending the existing
-wiki .org files (prng, proba_dist, sample, crit_comp, eval, tb_var) and adding
-pages for the ones lacking docs (maths, routings, and the
-iterative/optimization-chain once finalized). Each block should show realistic
-construction via the parameter-map + registry API, draw/evaluate, and display
-expected output. Add an example assembling several features into a small
-end-to-end optimization snippet, matching the README's "assembly is the user's
-responsibility, documented" goal.
+** DONE 14. Write runnable .org babel examples for every feature
+One runnable example per public feature — prng, proba-dist, sample, crit-comp,
+eval, tb-var, maths, routings — plus an =end_to_end= example assembling
+prng + proba-dist + a cost model + sample + crit-comp into a tiny seeded
+random-search optimiser. =bb examples= passes (9/9).
 
 * Definition of done
-** TODO 15. Run full bp gate and confirm steady state
-After the above: run =bb format=, =bb lint=, =bb clj-test all=, =bb cljs-node-test
-all= (i.e. =bb bp=) and confirm everything is green, including the newly wired
-clj-only tests and the doc-example verification. Resolve any remaining clj-kondo
-warnings on the new files. This is the definition-of-done for reaching steady
-state on the branch.
+** DONE 15. Run full bp gate and confirm steady state
+=bb bp= (=bb format=, =bb lint=, =bb clj-test all=, =bb cljs-node-test all=) is
+green with the newly wired clj-only and cljs-only tests, and =bb examples= runs
+all doc examples successfully. No outstanding clj-kondo warnings on the new
+files.
