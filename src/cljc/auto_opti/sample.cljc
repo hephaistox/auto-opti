@@ -3,7 +3,6 @@
 
   Some functions are inspired from `https://github.com/MastodonC/kixi.stats`.
   and optimization tips about `http://hugoduncan.org/criterium/0.4/uberdoc.html`."
-  (:refer-clojure :exclude [min max sqrt abs exp])
   (:require
    [auto-opti.maths :as opt-maths]))
 

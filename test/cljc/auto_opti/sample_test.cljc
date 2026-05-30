@@ -59,8 +59,8 @@
 (deftest midrange-test
   (testing "Midrange is ok"
     (is (= 50 (sut/midrange-long [2 98 13 10]) (sut/midrange-long [2 98])))
-    (is (opt-maths/approx= 0.0001 50.0 (sut/midrange-double [2 98 13 10]))
-        (opt-maths/approx= 0.0001 50.0 (sut/midrange-double [2 98]))))
+    (is (opt-maths/approx= 0.0001 50.0 (sut/midrange-double [2 98 13 10])))
+    (is (opt-maths/approx= 0.0001 50.0 (sut/midrange-double [2 98]))))
   (testing "Midrange is ok"
     (is (nil? (sut/midrange [])))
     (is (nil? (sut/midrange nil)))

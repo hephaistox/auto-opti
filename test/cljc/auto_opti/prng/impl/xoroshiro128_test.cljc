@@ -2,7 +2,7 @@
   (:require
    #?(:clj [clojure.test :refer [deftest is]]
       :cljs [cljs.test :refer [deftest is] :include-macros true])
-   [auto-opti.prng.impl.tests        :as opt-prng-tests]
+   [auto-opti.prng.impl.test-suites  :as opt-prng-tests]
    [auto-opti.prng.impl.xoroshiro128 :as sut]
    [auto-opti.prng.stateful          :as opt-prng-stateful]
    [auto-opti.prng.stateless         :as opt-prng-stateless]

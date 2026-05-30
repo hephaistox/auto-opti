@@ -6,16 +6,32 @@
    [auto-opti                        :as-alias opti]
    [auto-opti.prng.impl.built-in     :as opt-prng-built-in]
    [auto-opti.prng.impl.xoroshiro128 :as opt-prng-xoro]
+   #?(:clj [auto-opti.prng.impl.xoroshiro128-jvm :as opt-prng-xoro-fast]
+      :cljs [auto-opti.prng.impl.xoroshiro128-js :as opt-prng-xoro-fast])
+   #?(:clj [auto-opti.prng.impl.xoroshiro256-jvm :as opt-prng-xoro-256])
    [auto-opti.prng.stateful          :as opt-prng-stateful]))
 
+(defn- ->uuid [seed] (if (string? seed) (parse-uuid seed) seed))
+
 (def prng-registry
-  "Registry of prngs, with a function turning a seed into an implementation of `opt-prng-stateful/PRNG`."
-  {:xoroshiro128
-   (fn [{::opti/keys [seed]}]
-     (if (string? seed) (opt-prng-xoro/make (parse-uuid seed)) (opt-prng-xoro/make seed)))
-   :built-in (fn [_] (opt-prng-built-in/make))})
-:64-bit
-;;TODO Add metadata to describe the prng: accept-seed, :64-bit, :crosspf?
+  "Registry of prngs, with a function turning a seed into an implementation of `opt-prng-stateful/PRNG`.
+
+  * `:xoroshiro128` - portable, returns the exact same values on the JVM and in
+    JavaScript, at an efficiency cost.
+  * `:xoroshiro128-jvm` / `:xoroshiro256-jvm` (JVM only), `:xoroshiro128-js` (JS
+    only) - the fastest implementations on each platform. Only the entries
+    matching the host platform are registered, so a platform-specific key cannot
+    be used across platforms.
+
+  TODO Add metadata to describe each prng: accept-seed, :64-bit, :cross-pf?"
+  (merge {:xoroshiro128 (fn [{::opti/keys [seed]}] (opt-prng-xoro/make (->uuid seed)))
+          :built-in (fn [_] (opt-prng-built-in/make))}
+         #?(:clj
+              {:xoroshiro128-jvm (fn [{::opti/keys [seed]}] (opt-prng-xoro-fast/make (->uuid seed)))
+               :xoroshiro256-jvm (fn [{::opti/keys [seed]}] (opt-prng-xoro-256/make (->uuid seed)))}
+            :cljs {:xoroshiro128-js (fn [{::opti/keys [seed]}]
+                                      (opt-prng-xoro-fast/make (->uuid seed)))})))
+
 (defn prng
   "Creates a `prng` based on a parameter map."
   [{::opti/keys [prng-name seed registry]

@@ -1,6 +1,5 @@
 (ns auto-opti.crit-comp
   "Use criteria comparator to compare two solutions."
-  (:refer-clojure :exclude [eval])
   (:require
    [auto-opti                    :as-alias opti]
    [auto-opti.maths.weighted-sum :as opt-weighted-sum]))
