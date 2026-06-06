@@ -6,11 +6,12 @@
   * `m` the machine name
   * `pt` the processing time that could be an integer or a distribution"
   (:require
-   [auto-opti.dstb :as opt-dstb]))
+   [auto-opti            :as-alias opti]
+   [auto-opti.proba-dist :as opt-dstb]))
 
 (defn machines
   "Sorted list of machines"
-  [{:keys [routes]
+  [{::opti/keys [routes]
     :as _model}]
   (->> routes
        vals
@@ -26,28 +27,32 @@
   Data are turned into distributions.
   All distributions are using `prng`."
   [model prng]
-  (let [{:keys [routes]} model
-        dstb-fn (partial opt-dstb/dstb prng)]
+  (let [{::opti/keys [routes]} model]
     (-> model
-        (assoc :route-dstb
-               (dstb-fn {:dstb-name :categorical
-                         :category-probabilities (update-vals routes #(get % :probability 1))}))
-        (update :routes
+        (assoc ::opti/route-dstb
+               (opt-dstb/distribution #::opti{:dstb-name :categorical
+                                              :prng prng
+                                              :category-probabilities
+                                              (update-vals routes #(get % :probability 1))}))
+        (update ::opti/routes
                 (fn [routes]
                   (->> routes
                        (mapv (fn [[route-id route]]
                                [route-id
                                 (-> route
                                     (assoc :route-id route-id)
-                                    (update :operations
-                                            (fn [operations]
-                                              (->> operations
-                                                   (mapv (fn [operation]
-                                                           (-> operation
-                                                               (update :pt dstb-fn))))))))]))
+                                    (update
+                                     :operations
+                                     (fn [operations]
+                                       (->> operations
+                                            (mapv (fn [operation]
+                                                    (-> operation
+                                                        (update :pt opt-dstb/distribution))))))))]))
                        (into {})))))))
 
 (defn pick-route-id
   "Pick one route-id based on `route-dstb`"
   [model]
-  (let [{:keys [route-dstb]} model] (when (seq (:routes model)) (opt-dstb/resolve route-dstb))))
+  (-> model
+      ::opti/route-dstb
+      opt-dstb/resolve))

@@ -1,0 +1,41 @@
+#+title: auto-opti.proba-dist — runnable example
+
+A =distribution= is built from a parameter map. =:dstb-name= selects the
+kind (defaulting to =:uniform=) from the =distribution-registry=; the
+remaining keys are the distribution's own parameters. A prng is created
+from =:seed= / =:prng-name= unless an explicit =:prng= is supplied. =draw=
+samples a value.
+
+This =.org= is the runnable source: =bb examples= executes the block below.
+
+#+begin_src clojure :results output :exports both
+(require '[auto-opti.proba-dist :as dstb])
+
+(println "=== auto-opti.proba-dist ===")
+
+;; Uniform on [10;30[ with a fixed seed: the first draw is fully reproducible.
+(let [d (dstb/distribution #:auto-opti{:dstb-name :uniform
+                                       :seed #uuid "31bf8660-b31b-4c1c-b440-8ecf82e0a477"
+                                       :a 10
+                                       :b 30})]
+  (println "uniform [10;30[ draw :" (dstb/draw d)))
+
+;; Normal distribution: location (mean) and scale (std-dev). Several draws.
+(let [d (dstb/distribution #:auto-opti{:dstb-name :normal
+                                       :seed #uuid "31bf8660-b31b-4c1c-b440-8ecf82e0a477"
+                                       :location 100
+                                       :scale 5})]
+  (println "normal 4 draws       :" (dstb/draws d 4)))
+
+;; Categorical distribution: a weighted choice among keys.
+(let [d (dstb/distribution #:auto-opti{:dstb-name :categorical
+                                       :seed #uuid "31bf8660-b31b-4c1c-b440-8ecf82e0a477"
+                                       :category-probabilities {:red 0.5 :green 0.3 :blue 0.2}})]
+  (println "categorical 6 draws  :" (dstb/draws d 6)))
+#+end_src
+
+#+RESULTS:
+: === auto-opti.proba-dist ===
+: uniform [10;30[ draw : 27.96877525845019
+: normal 4 draws       : (... four doubles around 100 ...)
+: categorical 6 draws  : (... six of :red/:green/:blue ...)

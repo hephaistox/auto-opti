@@ -26,3 +26,6 @@ docs/codox/
 **/.clever.json
 **/.clever
 pom.properties
+
+xoro_test
+xoro256_test

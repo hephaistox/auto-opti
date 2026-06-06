@@ -1,0 +1,37 @@
+#+title: auto-opti.prng — runnable example
+
+A =prng= is a stateful pseudo-random number generator built from a
+parameter map. The map selects an implementation by name (defaulting to
+=:xoroshiro128=) and a seed; the same seed always yields the same stream,
+which is exactly what reproducible simulation needs.
+
+*SECURITY NOTE:* these generators are NOT cryptographically secure. Never
+use them for keys, tokens, salts, or any security-sensitive randomness.
+
+This =.org= is the runnable source: =bb examples= executes the block below.
+
+#+begin_src clojure :results output :exports both
+(require '[auto-opti.prng :as prng])
+
+(println "=== auto-opti.prng ===")
+
+;; With no seed a fixed default seed is used, so the stream is deterministic.
+;; Each draw advances the generator's state.
+(let [gen (prng/prng {})]
+  (println "three as-int draws:"
+           [(prng/as-int gen 0 10) (prng/as-int gen 6 12) (prng/as-int gen 60 72)]))
+
+;; A fresh default prng restarts the same deterministic stream.
+(let [gen (prng/prng {})] (println "first as-double   :" (prng/as-double gen 0.0 10.0)))
+
+;; An explicit seed reproduces an exact value across independent generators.
+(let [seeded (prng/prng #:auto-opti{:prng-name :xoroshiro128
+                                    :seed #uuid "54b9758a-906f-4ec9-b1eb-1efef7f67e3d"})]
+  (println "seeded as-int     :" (prng/as-int seeded 0 10)))
+#+end_src
+
+#+RESULTS:
+: === auto-opti.prng ===
+: three as-int draws: [6 7 67]
+: first as-double   : 0.2594879491552782
+: seeded as-int     : 8

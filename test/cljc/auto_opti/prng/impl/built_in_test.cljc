@@ -2,10 +2,10 @@
   (:require
    #?(:clj [clojure.test :refer [deftest is testing]]
       :cljs [cljs.test :refer [deftest is testing] :include-macros true])
-   [auto-opti.prng.impl.built-in :as sut]
-   [auto-opti.prng.impl.tests    :as opt-prng-tests]
-   [auto-opti.prng.stateful      :as opt-prng-stateful]
-   [auto-opti.prng.stateful-test :as opt-prng-stateful-test]))
+   [auto-opti.prng.impl.built-in    :as sut]
+   [auto-opti.prng.impl.test-suites :as opt-prng-tests]
+   [auto-opti.prng.stateful         :as opt-prng-stateful]
+   [auto-opti.prng.stateful-test    :as opt-prng-stateful-test]))
 
 (deftest built-in-test
   (testing "Is built-in a stateful prng?" (opt-prng-stateful-test/test-non-repeatable (sut/make))))

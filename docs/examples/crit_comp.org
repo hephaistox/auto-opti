@@ -1,0 +1,34 @@
+#+title: auto-opti.crit-comp — runnable example
+
+A criteria comparator decides whether solution 1 is =:better=, =:worst= or
+=:equal= to solution 2 given their criteria maps. =crit-comp-fn= looks a
+strategy up in =default-registry= by =:crit-comp-name= and returns a ready
+comparator function =(fn [crit1 crit2] ...)=.
+
+This =.org= is the runnable source: =bb examples= executes the block below.
+
+#+begin_src clojure :results output :exports both
+(require '[auto-opti.crit-comp :as crit-comp])
+
+(let [sol-a {:cost 12 :delay 2 :quality 100}
+      sol-b {:cost 13 :delay 2 :quality 100}
+      ;; Hierarchical: rank by :cost first, then :delay (smaller is better).
+      hierarchical (crit-comp/crit-comp-fn
+                    #:auto-opti{:crit-comp-name :hierarchise
+                                :order [#:auto-opti{:crit-comp-name :smaller :crit-name :cost}
+                                        #:auto-opti{:crit-comp-name :smaller :crit-name :delay}]})
+      ;; Weighted-sum: combine criteria with weights, smaller sum is better.
+      weighted (crit-comp/crit-comp-fn
+                #:auto-opti{:crit-comp-name :weighted-sum :weights {:cost 10 :delay 100}})
+      smaller (crit-comp/crit-comp-fn #:auto-opti{:crit-comp-name :smaller})]
+  (println "=== auto-opti.crit-comp ===")
+  (println "hierarchise a vs b :" (hierarchical sol-a sol-b))
+  (println "weighted a vs b    :" (weighted {:cost 12 :delay 2} {:cost 13 :delay 4}))
+  (println "smaller 12 vs 20   :" (smaller 12 20)))
+#+end_src
+
+#+RESULTS:
+: === auto-opti.crit-comp ===
+: hierarchise a vs b : :better
+: weighted a vs b    : :better
+: smaller 12 vs 20   : :better

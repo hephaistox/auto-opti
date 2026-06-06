@@ -1,5 +1,6 @@
 (ns auto-opti.maths.gamma
   "Calculation of gamma function"
+  {:no-doc true}
   (:refer-clojure :exclude [abs])
   (:require
    [auto-opti.maths :refer [HALF_LOG_2_PI
@@ -82,7 +83,7 @@
   (+ (reduce (fn [sum [i l]] (+ sum (/ l (+ x i)))) 0.0 LANCZOS) 0.9999999999999971))
 
 (defn inv-gamma-1pm1
-  "Computes the function `(dec (/ 1 (gamma (inc x))))`, where `x∊[-0.5;0.5]`."
+  "Computes the function `(dec (/ 1 (gamma (inc x))))`, where `x∊[-0.5;1.5]`."
   [x]
   (let [t (if (<= x 0.5) x (- (- x 0.5) 0.5))]
     (if (< t 0)
@@ -96,7 +97,7 @@
         (if (> x 0.5) (* (/ t x) (dec c)) (* x c))))))
 
 (defn log-gamma-1p
-  "Computes the function `(ln (gamma (inc x)))`, where `x∊[-0.5;0.5]`."
+  "Computes the function `(ln (gamma (inc x)))`, where `x∊[-0.5;1.5]`."
   [x]
   (- (log1p (inv-gamma-1pm1 x))))
 
@@ -113,19 +114,28 @@
             (+ (- (* (+ x 0.5) (log t)) t) HALF_LOG_2_PI (log (/ (lanczos-approximation x) x))))))
 
 (defn gamma
-  "Computes the value of Γx."
+  "Computes the value of Γx.
+
+  Returns `##NaN` at the poles of the gamma function - the non-positive integers
+  (0, -1, -2, ...) - where Γ is undefined."
   [x]
-  (let [abs-x (abs x)]
-    (if (<= abs-x 20)
-      (if (>= x 1)
-        (loop [t (dec x) p 1] (if (> t 1.5) (recur (dec t) (* p t)) (/ p (inc (inv-gamma-1pm1 t)))))
-        (loop [t (inc x)
-               p x]
-          (if (< t 0.5) (recur (inc t) (* p t)) (/ 1 (* p (inc (inv-gamma-1pm1 (dec t))))))))
-      (let [y (+ abs-x LANCZOS_G 0.5)
-            abs-g
-            (* (/ SQRT_2_PI abs-x) (pow y (+ abs-x 0.5)) (exp (- y)) (lanczos-approximation abs-x))]
-        (if (pos? x) abs-g (/ (- PI) (* x abs-g (sin (* PI x)))))))))
+  (if (and (<= x 0) (== x (floor x)))
+    ##NaN
+    (let [abs-x (abs x)]
+      (if (<= abs-x 20)
+        (if (>= x 1)
+          (loop [t (dec x)
+                 p 1]
+            (if (> t 1.5) (recur (dec t) (* p t)) (/ p (inc (inv-gamma-1pm1 t)))))
+          (loop [t (inc x)
+                 p x]
+            (if (< t 0.5) (recur (inc t) (* p t)) (/ 1 (* p (inc (inv-gamma-1pm1 (dec t))))))))
+        (let [y (+ abs-x LANCZOS_G 0.5)
+              abs-g (* (/ SQRT_2_PI abs-x)
+                       (pow y (+ abs-x 0.5))
+                       (exp (- y))
+                       (lanczos-approximation abs-x))]
+          (if (pos? x) abs-g (/ (- PI) (* x abs-g (sin (* PI x))))))))))
 
 (defn lower-regularized-gamma
   "Computes the lower regularized incomplete gamma function P(a,x)."

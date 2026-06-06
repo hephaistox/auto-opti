@@ -2,7 +2,7 @@
   (:require
    #?(:clj [clojure.test :refer [deftest is]]
       :cljs [cljs.test :refer [deftest is] :include-macros true])
-   [auto-opti.prng.impl.tests        :as opt-prng-tests]
+   [auto-opti.prng.impl.test-suites  :as opt-prng-tests]
    [auto-opti.prng.impl.xoroshiro128 :as sut]
    [auto-opti.prng.stateful          :as opt-prng-stateful]
    [auto-opti.prng.stateless         :as opt-prng-stateless]
@@ -11,7 +11,8 @@
    [xoroshiro128.core                :as xoro]))
 
 (deftest xoro-test
-  (is (opt-prng-stateless-test/test-all (sut/make-stateless))
+  (is (opt-prng-stateless-test/test-all (sut/make-stateless
+                                         #uuid "e8971453-69c4-499f-a010-53e1e145ee7f"))
       "Stateless tests for xoro are passing"))
 
 (deftest test-uniformity-test

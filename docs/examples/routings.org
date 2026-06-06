@@ -1,0 +1,37 @@
+#+title: auto-opti.routings — runnable example
+
+=auto-opti.routings= models jobshop data: a map of =route-id= -> ordered
+list of operations, each operation being a machine =:m= and a processing
+time =:pt= (an integer or a distribution parameter map). =start= prepares
+the model against a prng (turning processing times into live distributions
+and building a categorical distribution over routes), then =pick-route-id=
+samples a route.
+
+This =.org= is the runnable source: =bb examples= executes the block below.
+
+#+begin_src clojure :results output :exports both
+(require '[auto-opti.prng :as prng])
+(require '[auto-opti.routings :as routings])
+
+(let [model #:auto-opti{:routes
+                        {:blue {:probability 0.6
+                                :operations [{:m :m4 :pt #:auto-opti{:dstb-name :uniform :a 10 :b 15}}
+                                             {:m :m2 :pt 3}
+                                             {:m :m1 :pt #:auto-opti{:dstb-name :normal
+                                                                     :location 8 :scale 1}}]}
+                         :purple {:probability 0.4
+                                  :operations [{:m :m4 :pt 5}
+                                               {:m :m3 :pt #:auto-opti{:dstb-name :uniform :a 4 :b 9}}
+                                               {:m :m1 :pt 2}]}}}
+      gen (prng/prng #:auto-opti{:prng-name :xoroshiro128
+                                 :seed #uuid "e85427c1-ed25-4ed4-9b11-52238d268265"})
+      started (routings/start model gen)]
+  (println "=== auto-opti.routings ===")
+  (println "machines           :" (routings/machines model))
+  (println "picked route-ids   :" (repeatedly 5 #(routings/pick-route-id started))))
+#+end_src
+
+#+RESULTS:
+: === auto-opti.routings ===
+: machines           : (:m1 :m2 :m3 :m4)
+: picked route-ids   : (... five of :blue / :purple, weighted 0.6 / 0.4 ...)

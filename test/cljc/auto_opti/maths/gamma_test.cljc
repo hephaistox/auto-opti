@@ -96,6 +96,14 @@
   (is (= 5040.0 (sut/gamma 8)))
   (is (= (mapv sut/gamma (range -25.5 24)) gamma-point-values)))
 
+(deftest gamma-is-nan-at-poles
+  ;; Γ has poles (is undefined) at the non-positive integers; gamma returns ##NaN there.
+  (is (NaN? (sut/gamma 0)))
+  (is (NaN? (sut/gamma -1)))
+  (is (NaN? (sut/gamma -5)))
+  ;; a non-pole negative is still a real value (via the reflection formula).
+  (is (not (NaN? (sut/gamma -1.5)))))
+
 (defn remove-equals
   [l]
   (->> l
@@ -107,7 +115,7 @@
                   :gap (- expected (sut/log-gamma idx))
                   :abs-gap (opt-maths/abs (- expected (sut/log-gamma idx)))
                   :abs-gap-zero? (zero? (opt-maths/abs (- expected (sut/log-gamma idx))))
-                  :fn (opt-maths/approx= (sut/log-gamma idx) expected 0.1)})))
+                  :fn (opt-maths/approx= 0.1 (sut/log-gamma idx) expected)})))
        (remove nil?)))
 
 (deftest log-gamma-returns-correct-point-values

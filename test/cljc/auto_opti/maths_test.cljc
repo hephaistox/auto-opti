@@ -116,6 +116,12 @@
   (is (double-compare (sut/floor -3.0) -3.0))
   (is (double-compare (sut/floor 4.3) 4.0)))
 
+
+(deftest approx=-test
+  (is (sut/approx= 0.0001 0.2969 0.2969) "Strict equality")
+  (is (sut/approx= 0.0001 0.2970 0.2969) "In the interval")
+  (is (not (sut/approx= 0.0001 0.3969 0.2969)) "Outside the interval"))
+
 (deftest interval-affine-test
   (testing "Identity between 0 an 10"
     (is (empty? (test-fn-vals (partial sut/interval-affine-fn 1 0 0 10)

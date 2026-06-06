@@ -1,0 +1,1 @@
+gcc -o xoro_test xoro_test.cpp && ./xoro_test

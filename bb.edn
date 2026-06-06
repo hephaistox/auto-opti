@@ -1,5 +1,5 @@
-{:deps {com.github.hephaistox/auto-build {:git/sha "6e9a158ebf50ed9d0291f05c767b056c24508ca5"}}
- :paths ["src"]
+{:deps {com.github.hephaistox/auto-build {:git/sha "1116cf94d491b1649ce47a5abc545aaeeb3b7691"}}
+ :paths []
  :tasks
  {:requires [[auto-build.os.exit-codes] [auto-build.os.exiting :refer [exit]]]
   bp {:doc "Before push"
@@ -10,6 +10,7 @@
                         (run 'clj-test))
                       (binding [*command-line-args* (conj *command-line-args* "all")]
                         (run 'cljs-node-test))
+                      (run 'examples)
                       auto-build.os.exit-codes/ok)
                   System/exit))}
   clean {:doc "Clean temporary files"
@@ -41,6 +42,9 @@
               [auto-build.echo :refer [level1-header]]]
    :task (-> (build-cljs-node-test/cljs-node-test level1-header "." (current-task) ["ltest"])
              exit)}
+  copy {:doc "Copy files from source projects (as defined in ext_src.edn)"
+        :requires [[auto-build.tasks.copy :as tc] [auto-build.echo :refer [level1-header]]]
+        :task (tc/run level1-header "ext_src.edn")}
   deploy {:doc "Deploy"
           :requires [[auto-build.tasks.deploy :as task-deploy]
                      [auto-build.echo :refer [level1-header]]]
@@ -50,8 +54,117 @@
         :task (do (shell "clj -M:antq") (shell "npm upgrade"))}
   docs {:doc "Docs"
         :requires [[auto-build.tasks.docs :as build-docs] [auto-build.echo :refer [level1-header]]]
-        :task (-> (build-docs/docs level1-header "." (current-task) "gh-pages")
+        :task (-> (build-docs/docs level1-header "." (current-task) "gh-pages" "codox")
                   exit)}
+  examples
+  {:doc
+   "Run every doc example: each docs/examples/*.org may hold several #+begin_src clojure blocks. All blocks of a file run in one JVM (state is shared, as in an org-babel session) and each block's stdout is checked against the #+RESULTS: that follows it. Fails if any block throws or drifts."
+   :requires [[clojure.java.shell :as cjsh]]
+   :task
+   (let [delim "__AUTO-OPTI-BLOCK__"
+         ;; Parse an .org into an ordered vector of {:code .. :expected [lines]}.
+         ;; :expected is the `: `-stripped lines of the #+RESULTS: that immediately
+         ;; follows the block (empty vector when the block has none).
+         parse-blocks
+         (fn [content]
+           (loop [ls (clojure.string/split-lines content)
+                  blocks []]
+             (if (empty? ls)
+               blocks
+               (if (clojure.string/starts-with? (clojure.string/triml (first ls))
+                                                "#+begin_src clojure")
+                 (let [[code after] (split-with (fn [x]
+                                                  (not (clojure.string/starts-with?
+                                                        (clojure.string/triml x)
+                                                        "#+end_src")))
+                                                (rest ls))
+                       post-blank (drop-while clojure.string/blank? (rest after))
+                       results? (and (seq post-blank)
+                                     (= "#+RESULTS:" (clojure.string/trim (first post-blank))))
+                       [expected remaining]
+                       (if results?
+                         (let [[exp tail]
+                               (split-with
+                                (fn [x] (clojure.string/starts-with? (clojure.string/triml x) ":"))
+                                (rest post-blank))]
+                           [(mapv (fn [x]
+                                    (clojure.string/replace-first (clojure.string/triml x)
+                                                                  (re-pattern "^:\\s?")
+                                                                  ""))
+                                  exp)
+                            tail])
+                         [[] post-blank])]
+                   (recur remaining
+                          (conj blocks
+                                {:code (clojure.string/join "\n" code)
+                                 :expected expected})))
+                 (recur (rest ls) blocks)))))
+         ;; Split captured stdout back into one line-vector per block (on the delimiter).
+         chunks-of (fn [out]
+                     (reduce
+                      (fn [acc line]
+                        (if (= line delim) (conj acc []) (update acc (dec (count acc)) conj line)))
+                      [[]]
+                      (clojure.string/split-lines out)))
+         trim-blank (fn [lines]
+                      (->> lines
+                           (drop-while clojure.string/blank?)
+                           reverse
+                           (drop-while clojure.string/blank?)
+                           reverse))
+         ;; nil when actual matches expected; otherwise a readable diff string. An
+         ;; expected line containing `...` is a wildcard (shape-described, not pinned).
+         drift (fn [expected actual]
+                 (cond
+                   (empty? expected) nil
+                   (not= (count expected) (count actual))
+                   (str "  line count: expected " (count expected)
+                        ", got " (count actual)
+                        "\n  expected:\n    " (clojure.string/join "\n    " expected)
+                        "\n  actual:\n    " (clojure.string/join "\n    " actual))
+                   :else (some
+                          (fn [[i e a]]
+                            (when-not (or (clojure.string/includes? e "...")
+                                          (= (clojure.string/trimr e) (clojure.string/trimr a)))
+                              (str "  line " (inc i) ":\n    expected: " e "\n    actual:   " a)))
+                          (map vector (range) expected actual))))
+         dir (clojure.java.io/file "docs/examples")
+         files (->> (file-seq dir)
+                    (filter (fn [f]
+                              (and (clojure.string/ends-with? (.getName f) ".org")
+                                   (not= "README.org" (.getName f)))))
+                    (sort-by (fn [f] (.getName f))))]
+     (when (empty? files)
+       (println "No example .org files found under docs/examples")
+       (System/exit 1))
+     (doseq [f files]
+       (let [path (.getPath f)
+             blocks (parse-blocks (slurp f))]
+         (println (str "\n--- Running " path " (" (count blocks) " block(s)) ---"))
+         (when (empty? blocks)
+           (println (str "FAILED: no clojure src block in " path))
+           (System/exit 1))
+         (let [tmp (java.io.File/createTempFile "auto-opti-example" ".clj")
+               _ (spit tmp
+                       (clojure.string/join (str "\n(println \"" delim "\")\n") (map :code blocks)))
+               {:keys [exit out err]} (cjsh/sh "clojure" "-M"
+                                               "-e" (str "(load-file \"" (.getPath tmp) "\")"))]
+           (.delete tmp)
+           (doseq [line (remove (fn [l] (= l delim)) (clojure.string/split-lines out))]
+             (println line))
+           (when-not (zero? exit)
+             (binding [*out* *err*]
+               (print err)
+               (flush))
+             (println (str "FAILED (threw): " path))
+             (System/exit exit))
+           (doseq [[idx block chunk] (map vector (range) blocks (chunks-of out))]
+             (let [problem (drift (:expected block) (trim-blank chunk))]
+               (when problem
+                 (println (str "FAILED (output drift): " path " — block " (inc idx)))
+                 (println problem)
+                 (System/exit 1)))))))
+     (println (str "\nAll " (count files) " example files ran (stdout matches #+RESULTS:).")))}
   format {:doc "Format"
           :requires [[auto-build.tasks.formatting :as task-format]
                      [auto-build.echo :refer [level1-header]]]
@@ -65,6 +178,9 @@
                         [auto-build.echo :refer [level1-header]]]
              :task (-> (heph-info/heph-info level1-header (current-task) ".")
                        exit)}
+  init {:doc "Execute at first to add wiki repo"
+        :requires [[auto-build.tasks.init :as task-init] [auto-build.echo :refer [level1-header]]]
+        :task (task-init/run level1-header "git@github.com:hephaistox/auto-opti.wiki.git")}
   lint {:doc "Lint"
         :requires [[auto-build.tasks.lint :as task-lint] [auto-build.echo :refer [level1-header]]]
         :task (-> (task-lint/lint level1-header ["src" "test"] "." (current-task))
@@ -72,5 +188,5 @@
   repl {:doc "Clojure repl"
         :override-builtin true
         :requires [[auto-build.tasks.repl :as build-repl] [auto-build.echo :refer [level1-header]]]
-        :task (-> (build-repl/repl level1-header "." (current-task) [:build :cljs-deps] 7003)
+        :task (-> (build-repl/repl level1-header "." (current-task) [:cljs-deps] 7003)
                   exit)}}}

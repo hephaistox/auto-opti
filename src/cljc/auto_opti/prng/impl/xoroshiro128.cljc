@@ -6,7 +6,7 @@
   Warning. Long type in cljs doesn't exist so a number like this -3701927706170739138 is turned into a floating number that is loosing some precision. So the same seed (i.e. -3701927706170739138) seems to lead to different results (between clj and cljs).
 
   See [xoroshiro128 repo](https://github.com/thedavidmeister/xoroshiro128] for more details."
-  (:refer-clojure :exclude [next])
+  {:no-doc true}
   (:require
    [auto-opti.maths                 :as opt-maths]
    [auto-opti.prng.stateful-wrapper :as opt-stateful-wrapper]
@@ -29,14 +29,11 @@
 
 (defn make-stateless
   "With the optional `uuid` parameter used as a seed, the stateless version of the xoroshiro prng is generated."
-  ([uuid-seed]
-   (when (uuid? uuid-seed)
-     (->Xoroshiro128 (xoro/xoroshiro128+ (xoro/uuid->seed128 uuid-seed)) uuid-seed)))
-  ([]
-   (let [uuid-seed (random-uuid)]
-     (->Xoroshiro128 (xoro/xoroshiro128+ (xoro/uuid->seed128 uuid-seed)) uuid-seed))))
+  [uuid-seed]
+  (when (uuid? uuid-seed)
+    (->Xoroshiro128 (xoro/xoroshiro128+ (xoro/uuid->seed128 uuid-seed)) uuid-seed)))
 
 (defn make
   "With the optional `uuid` parameter used as a seed, the stateful version of the xoroshiro prng is generated."
-  ([uuid-seed] (opt-stateful-wrapper/make (make-stateless uuid-seed)))
-  ([] (opt-stateful-wrapper/make (make-stateless))))
+  [uuid-seed]
+  (opt-stateful-wrapper/make (make-stateless uuid-seed)))

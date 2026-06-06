@@ -1,6 +1,6 @@
 (ns auto-opti.prng.impl.built-in
   "PRNG implementation built-in in your platform."
-  (:refer-clojure :exclude [next])
+  {:no-doc true}
   (:require
    [auto-opti.prng.stateful :as opt-prng-stateful]))
 
@@ -13,8 +13,9 @@
        (ex-info
         "Not implemented. Leverage another prng or implement https://github.com/trystan/random-seed"
         {})))
-    (uuid-seed [_] nil)
+    (uuid-seed [_] (throw (ex-info "Not implemented." {})))
     (rnd-int [_ a b] (+ a (mod (rand) (- b a))))
     (rnd-double [_ a b] (+ a (mod (rand) (- b a)))))
 
 (defn make [] (->Builtin))
+

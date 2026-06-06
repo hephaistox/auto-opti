@@ -1,5 +1,6 @@
 (ns auto-opti.prng.stateful-wrapper
   "Creates a stateful prng based on a stateless one."
+  {:no-doc true}
   (:require
    [auto-opti.prng.stateful  :as opt-prng-stateful]
    [auto-opti.prng.stateless :as opt-prng-stateless]))

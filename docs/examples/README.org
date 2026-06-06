@@ -1,0 +1,69 @@
+#+title: auto-opti — Runnable examples
+#+author: Anthony CAUMOND
+
+* What this is
+
+One small, *runnable* example per public =auto-opti= feature, plus an
+end-to-end snippet that assembles several features into a tiny optimization
+flow. Every example is real, executable Clojure code that constructs the
+feature through its public parameter-map + registry API, exercises it, and
+=println=s labeled output. The examples cannot silently rot: if the public API
+changes in a breaking way, the example throws.
+
+Each example is a single =*.org= file: prose plus one or more =#+begin_src
+clojure= blocks. That one file is both the documentation (it renders on the wiki
+/ GitHub and is runnable interactively through *org-babel*) and the CI artifact —
+=bb examples= extracts the clojure block(s) and runs them headlessly. There is no
+separate =.clj= copy to keep in sync.
+
+* Running headlessly — =bb examples=
+
+The examples need no extra classpath: the project's base =:paths= in =deps.edn=
+already include =src/cljc= and =src/clj=, so every =auto-opti.*= namespace
+resolves. For each =docs/examples/*.org=, =bb examples= extracts every
+=#+begin_src clojure= block and runs all of a file's blocks in one JVM =clojure=
+process (so they share a single session, like org-babel against one REPL). Each
+block's stdout is then checked against the =#+RESULTS:= that follows it; the task
+exits non-zero on the first block that throws or whose output drifts (expected
+lines containing =...= are treated as wildcards):
+
+#+begin_src shell
+bb examples
+#+end_src
+
+* Running interactively — org-babel + CIDER
+
+The =.org= blocks are executable from Emacs via org-babel. They carry
+=:results output :exports both=, so evaluating a block captures its =println=
+output under =#+RESULTS:=.
+
+The backend must be a *JVM* REPL: the examples lean on =kixi/stats= (JVM-only)
+and on number-crunching that overflows under babashka, so =org-babel-clojure-backend=
+=babashka= will *not* work. Use CIDER:
+
+1. Start the project's nREPL (JVM, full classpath):
+   #+begin_src shell
+   bb repl     # nREPL on port 7003
+   #+end_src
+2. In Emacs, connect CIDER to it: =M-x cider-connect-clj= → =localhost= / =7003=
+   (or =M-x cider-jack-in= from a project buffer).
+3. Make sure org-babel uses the CIDER backend:
+   #+begin_src emacs-lisp
+   (setq org-babel-clojure-backend 'cider)
+   #+end_src
+4. Open an example =.org=, put point in the =clojure= block and =C-c C-c=
+   (or =C-c C-v b= to run every block in the buffer). Results land under
+   =#+RESULTS:=.
+
+Blocks evaluate in the connected REPL, so any =def= persists across evaluations.
+Each example block is self-contained (it =require=s what it needs), so you can
+run any one on its own.
+
+* Note on expected output
+
+A fixed seed makes each generator deterministic, so the numeric output is stable
+run to run. The exact values shown in the =.org= =#+RESULTS:= blocks are
+the values asserted by the corresponding test namespaces under =test/cljc/=, so
+they double as a cross-check. Where a line depends on a longer pseudo-random
+stream the comment describes the shape rather than pinning every digit;
+=bb examples= still verifies that the code runs.

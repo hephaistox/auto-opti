@@ -1,0 +1,39 @@
+#+title: auto-opti.eval + auto-opti.rep — runnable example
+
+An *evaluation* turns a /model/ (problem parameters) plus a /representation/ (a
+candidate solution) into a numeric solution. Each =auto-opti.eval/registry= entry
+declares, via =::opti/rep-type=, the kind of representation it consumes.
+=auto-opti.rep/valid-rep= checks a representation value against that rep-type, and
+=auto-opti.eval/eval-map= validates the model and builds the evaluation.
+
+The built-in =:montecarlo-pi= evaluation approximates pi by sampling points in a
+square and counting those inside the inscribed circle; its =:rep-type= is =:seed=,
+i.e. a representation shaped like ={:seed #uuid "..."}=.
+
+This =.org= is the runnable source: =bb examples= executes the block below.
+
+#+begin_src clojure :results output :exports both
+;; Single `let` body (no top-level `def`s) + non-shadowing aliases, so the block
+;; evaluates cleanly in any namespace / org-babel session.
+(require '[auto-opti.eval :as opt-eval])
+(require '[auto-opti.rep :as opt-rep])
+
+(let [entry     (get opt-eval/registry :montecarlo-pi)
+      rep-type  (:auto-opti/rep-type entry)               ; => :seed
+      model     {:radius 100 :iterations 100000}
+      a-rep     {:seed #uuid "6db832f7-c10a-414a-b08b-eb5ef1d9b4fe"}
+      evaluate  (opt-eval/eval-map :montecarlo-pi nil nil model)]
+  (println "=== auto-opti.eval + auto-opti.rep ===")
+  (println "rep-type           :" rep-type)
+  (println "valid-rep (ok)     :" (opt-rep/valid-rep rep-type a-rep))
+  (println "valid-rep (bad)    :" (opt-rep/valid-rep rep-type {:seed "not-a-uuid"}))
+  (when (nil? (opt-rep/valid-rep rep-type a-rep))
+    (println "pi approximation   :" (evaluate a-rep))))
+#+end_src
+
+#+RESULTS:
+: === auto-opti.eval + auto-opti.rep ===
+: rep-type           : :seed
+: valid-rep (ok)     : nil
+: valid-rep (bad)    : {:rep {:error {:seed [should be a uuid]}, :schema [:map [:seed :uuid]], :data {:seed not-a-uuid}}}
+: pi approximation   : 3.1426085739142606
