@@ -6,36 +6,36 @@ remaining keys are the distribution's own parameters. A prng is created
 from =:seed= / =:prng-name= unless an explicit =:prng= is supplied. =draw=
 samples a value.
 
-Source of truth: [[file:proba_dist.clj][proba_dist.clj]]. Run all examples with =bb examples=.
+This =.org= is the runnable source: =bb examples= executes the block below.
 
-#+begin_src clojure
-(require '[auto-opti :as-alias opti])
+#+begin_src clojure :results output :exports both
 (require '[auto-opti.proba-dist :as dstb])
 
-;; Uniform on [10;30[ with a fixed seed -> first draw is fully reproducible.
-(dstb/draw (dstb/distribution #::opti{:dstb-name :uniform
-                                      :seed #uuid "31bf8660-b31b-4c1c-b440-8ecf82e0a477"
-                                      :a 10
-                                      :b 30}))
-;; => 27.96877525845019
+(println "=== auto-opti.proba-dist ===")
+
+;; Uniform on [10;30[ with a fixed seed: the first draw is fully reproducible.
+(let [d (dstb/distribution #:auto-opti{:dstb-name :uniform
+                                       :seed #uuid "31bf8660-b31b-4c1c-b440-8ecf82e0a477"
+                                       :a 10
+                                       :b 30})]
+  (println "uniform [10;30[ draw :" (dstb/draw d)))
 
 ;; Normal distribution: location (mean) and scale (std-dev). Several draws.
-(dstb/draws (dstb/distribution #::opti{:dstb-name :normal
+(let [d (dstb/distribution #:auto-opti{:dstb-name :normal
                                        :seed #uuid "31bf8660-b31b-4c1c-b440-8ecf82e0a477"
                                        :location 100
-                                       :scale 5})
-            4)
-;; => (... four doubles around 100 ...)
+                                       :scale 5})]
+  (println "normal 4 draws       :" (dstb/draws d 4)))
 
 ;; Categorical distribution: a weighted choice among keys.
-(dstb/draws (dstb/distribution #::opti{:dstb-name :categorical
+(let [d (dstb/distribution #:auto-opti{:dstb-name :categorical
                                        :seed #uuid "31bf8660-b31b-4c1c-b440-8ecf82e0a477"
-                                       :category-probabilities {:red 0.5 :green 0.3 :blue 0.2}})
-            6)
-;; => (... six of :red/:green/:blue ...)
+                                       :category-probabilities {:red 0.5 :green 0.3 :blue 0.2}})]
+  (println "categorical 6 draws  :" (dstb/draws d 6)))
 #+end_src
 
 #+RESULTS:
+: === auto-opti.proba-dist ===
 : uniform [10;30[ draw : 27.96877525845019
 : normal 4 draws       : (... four doubles around 100 ...)
 : categorical 6 draws  : (... six of :red/:green/:blue ...)

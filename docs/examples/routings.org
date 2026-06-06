@@ -7,35 +7,31 @@ the model against a prng (turning processing times into live distributions
 and building a categorical distribution over routes), then =pick-route-id=
 samples a route.
 
-Source of truth: [[file:routings.clj][routings.clj]]. Run all examples with =bb examples=.
+This =.org= is the runnable source: =bb examples= executes the block below.
 
-#+begin_src clojure
-(require '[auto-opti :as-alias opti])
+#+begin_src clojure :results output :exports both
 (require '[auto-opti.prng :as prng])
 (require '[auto-opti.routings :as routings])
 
-(def model
-  #::opti{:routes {:blue {:probability 0.6
-                          :operations [{:m :m4 :pt #::opti{:dstb-name :uniform :a 10 :b 15}}
-                                       {:m :m2 :pt 3}
-                                       {:m :m1 :pt #::opti{:dstb-name :normal
-                                                           :location 8 :scale 1}}]}
-                   :purple {:probability 0.4
-                            :operations [{:m :m4 :pt 5}
-                                         {:m :m3 :pt #::opti{:dstb-name :uniform :a 4 :b 9}}
-                                         {:m :m1 :pt 2}]}}})
-
-;; Distinct, sorted machine names across all routes.
-(routings/machines model)              ;; => (:m1 :m2 :m3 :m4)
-
-;; Prepare against a seeded prng, then sample route-ids by probability.
-(def prng (prng/prng #::opti{:prng-name :xoroshiro128
-                             :seed #uuid "e85427c1-ed25-4ed4-9b11-52238d268265"}))
-(def started (routings/start model prng))
-(repeatedly 5 #(routings/pick-route-id started))
-;; => (... five of :blue / :purple, weighted 0.6 / 0.4 ...)
+(let [model #:auto-opti{:routes
+                        {:blue {:probability 0.6
+                                :operations [{:m :m4 :pt #:auto-opti{:dstb-name :uniform :a 10 :b 15}}
+                                             {:m :m2 :pt 3}
+                                             {:m :m1 :pt #:auto-opti{:dstb-name :normal
+                                                                     :location 8 :scale 1}}]}
+                         :purple {:probability 0.4
+                                  :operations [{:m :m4 :pt 5}
+                                               {:m :m3 :pt #:auto-opti{:dstb-name :uniform :a 4 :b 9}}
+                                               {:m :m1 :pt 2}]}}}
+      gen (prng/prng #:auto-opti{:prng-name :xoroshiro128
+                                 :seed #uuid "e85427c1-ed25-4ed4-9b11-52238d268265"})
+      started (routings/start model gen)]
+  (println "=== auto-opti.routings ===")
+  (println "machines           :" (routings/machines model))
+  (println "picked route-ids   :" (repeatedly 5 #(routings/pick-route-id started))))
 #+end_src
 
 #+RESULTS:
+: === auto-opti.routings ===
 : machines           : (:m1 :m2 :m3 :m4)
 : picked route-ids   : (... five of :blue / :purple, weighted 0.6 / 0.4 ...)

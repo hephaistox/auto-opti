@@ -5,35 +5,30 @@ A criteria comparator decides whether solution 1 is =:better=, =:worst= or
 strategy up in =default-registry= by =:crit-comp-name= and returns a ready
 comparator function =(fn [crit1 crit2] ...)=.
 
-Source of truth: [[file:crit_comp.clj][crit_comp.clj]]. Run all examples with =bb examples=.
+This =.org= is the runnable source: =bb examples= executes the block below.
 
-#+begin_src clojure
-(require '[auto-opti :as-alias opti])
+#+begin_src clojure :results output :exports both
 (require '[auto-opti.crit-comp :as crit-comp])
 
-(def sol-a {:cost 12 :delay 2 :quality 100})
-(def sol-b {:cost 13 :delay 2 :quality 100})
-
-;; Hierarchical: rank by :cost first, then :delay (smaller is better).
-(def hierarchical
-  (crit-comp/crit-comp-fn
-   #::opti{:crit-comp-name :hierarchise
-           :order [#::opti{:crit-comp-name :smaller :crit-name :cost}
-                   #::opti{:crit-comp-name :smaller :crit-name :delay}]}))
-(hierarchical sol-a sol-b)             ;; => :better
-
-;; Weighted-sum: combine criteria with weights, smaller sum is better.
-(def weighted
-  (crit-comp/crit-comp-fn
-   #::opti{:crit-comp-name :weighted-sum
-           :weights {:cost 10 :delay 100}}))
-(weighted {:cost 12 :delay 2} {:cost 13 :delay 4})   ;; => :better
-
-;; Single-criterion helper on bare values.
-((crit-comp/crit-comp-fn #::opti{:crit-comp-name :smaller}) 12 20)   ;; => :better
+(let [sol-a {:cost 12 :delay 2 :quality 100}
+      sol-b {:cost 13 :delay 2 :quality 100}
+      ;; Hierarchical: rank by :cost first, then :delay (smaller is better).
+      hierarchical (crit-comp/crit-comp-fn
+                    #:auto-opti{:crit-comp-name :hierarchise
+                                :order [#:auto-opti{:crit-comp-name :smaller :crit-name :cost}
+                                        #:auto-opti{:crit-comp-name :smaller :crit-name :delay}]})
+      ;; Weighted-sum: combine criteria with weights, smaller sum is better.
+      weighted (crit-comp/crit-comp-fn
+                #:auto-opti{:crit-comp-name :weighted-sum :weights {:cost 10 :delay 100}})
+      smaller (crit-comp/crit-comp-fn #:auto-opti{:crit-comp-name :smaller})]
+  (println "=== auto-opti.crit-comp ===")
+  (println "hierarchise a vs b :" (hierarchical sol-a sol-b))
+  (println "weighted a vs b    :" (weighted {:cost 12 :delay 2} {:cost 13 :delay 4}))
+  (println "smaller 12 vs 20   :" (smaller 12 20)))
 #+end_src
 
 #+RESULTS:
+: === auto-opti.crit-comp ===
 : hierarchise a vs b : :better
 : weighted a vs b    : :better
 : smaller 12 vs 20   : :better

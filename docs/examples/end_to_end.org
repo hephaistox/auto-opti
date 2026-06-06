@@ -14,49 +14,44 @@ crit-comp          -> select the best candidate (hierarchical comparison)
 The problem: pick a =(machine-speed, batch-size)= pair minimizing a cost,
 where cost trades off throughput against work-in-progress.
 
-Source of truth: [[file:end_to_end.clj][end_to_end.clj]]. Run all examples with =bb examples=.
+This =.org= is the runnable source: =bb examples= executes the block below.
 
-#+begin_src clojure
-(require '[auto-opti :as-alias opti])
+#+begin_src clojure :results output :exports both
 (require '[auto-opti.prng :as prng])
 (require '[auto-opti.proba-dist :as dstb])
 (require '[auto-opti.sample :as sample])
 (require '[auto-opti.crit-comp :as crit-comp])
 
-;; One shared, seeded prng drives every distribution -> fully reproducible.
-(def gen (prng/prng #::opti{:prng-name :xoroshiro128
-                            :seed #uuid "54b9758a-906f-4ec9-b1eb-1efef7f67e3b"}))
-
-;; Decision variables drawn from distributions sharing the prng.
-(def speed-dstb (dstb/distribution #::opti{:dstb-name :uniform :prng gen :a 1.0 :b 5.0}))
-(def batch-dstb (dstb/distribution #::opti{:dstb-name :uniform-int :prng gen :a 1 :b 20}))
-
-;; Cost model: candidate -> criteria map (lower is better).
-(defn evaluate [{:keys [speed batch]}]
-  (let [throughput-cost (/ 10.0 speed)   ; faster machine -> cheaper
-        wip-cost (* 0.5 batch)]          ; bigger batch -> more WIP
-    {:speed speed :batch batch :cost (+ throughput-cost wip-cost)}))
-
-;; Draw and evaluate a batch of candidates.
-(def candidates
-  (->> (repeatedly (fn [] {:speed (dstb/draw speed-dstb) :batch (dstb/draw batch-dstb)}))
-       (take 20)
-       (map evaluate)))
-
-;; Summarize the costs.
-(def costs (map :cost candidates))
-(sample/average costs)
-[(reduce min costs) (sample/median costs)]
-
-;; Select the best: smallest :cost wins (hierarchical, one criterion).
-(def better? (crit-comp/crit-comp-fn
-              #::opti{:crit-comp-name :hierarchise
-                      :order [#::opti{:crit-comp-name :smaller :crit-name :cost}]}))
-(def best
-  (reduce (fn [acc c] (if (= :better (better? c acc)) c acc))
-          (first candidates) (rest candidates)))
-(select-keys best [:speed :batch])
-(:cost best)
+(let [;; One shared, seeded prng drives every distribution -> reproducible run.
+      gen (prng/prng #:auto-opti{:prng-name :xoroshiro128
+                                 :seed #uuid "54b9758a-906f-4ec9-b1eb-1efef7f67e3b"})
+      speed-dstb (dstb/distribution #:auto-opti{:dstb-name :uniform :prng gen :a 1.0 :b 5.0})
+      batch-dstb (dstb/distribution #:auto-opti{:dstb-name :uniform-int :prng gen :a 1 :b 20})
+      ;; Cost model: candidate -> criteria map (lower is better).
+      evaluate (fn [{:keys [speed batch]}]
+                 (let [throughput-cost (/ 10.0 speed)   ; faster machine -> cheaper
+                       wip-cost (* 0.5 batch)]          ; bigger batch -> more WIP
+                   {:speed speed :batch batch :cost (+ throughput-cost wip-cost)}))
+      ;; Draw and evaluate a batch of candidate solutions.
+      candidates (->> (repeatedly (fn [] {:speed (dstb/draw speed-dstb)
+                                          :batch (dstb/draw batch-dstb)}))
+                      (take 20)
+                      (map evaluate))
+      costs (map :cost candidates)
+      ;; Select the best: smallest :cost wins (hierarchical, one criterion).
+      better? (crit-comp/crit-comp-fn
+               #:auto-opti{:crit-comp-name :hierarchise
+                           :order [#:auto-opti{:crit-comp-name :smaller :crit-name :cost}]})
+      best (reduce (fn [acc c] (if (= :better (better? c acc)) c acc))
+                   (first candidates) (rest candidates))]
+  (println "=== auto-opti end-to-end (random search) ===")
+  (println "candidates         :" (count candidates))
+  (println "mean cost          :" (sample/average costs))
+  (println "min/median cost    :" [(reduce min costs) (sample/median costs)])
+  (println "best candidate     :" (select-keys best [:speed :batch]))
+  (println "best cost          :" (:cost best))
+  (assert (= (:cost best) (reduce min costs)) "best must be the minimum-cost candidate")
+  (println "OK: best == min cost"))
 #+end_src
 
 #+RESULTS:
