@@ -23,7 +23,7 @@ All workflows go through [Babashka](https://babashka.org) tasks defined in `bb.e
 
 | Command                | Purpose                                                                                     |
 |------------------------|---------------------------------------------------------------------------------------------|
-| `bb bp`                | **Before-push gate**: format → lint → clj tests → cljs node tests. Run this before pushing. |
+| `bb bp`                | **Before-push gate**: format → lint → clj tests → cljs node tests → examples. Run before pushing. |
 | `bb clj-test`          | Run Clojure (JVM) tests via cognitect test-runner. Append `all` to run everything.          |
 | `bb cljs-node-test`    | Run ClojureScript tests on Node via shadow-cljs (`:ltest` build).                           |
 | `bb cljs-browser-test` | Run ClojureScript tests in a browser (`:browser-test` build).                               |

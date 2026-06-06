@@ -10,6 +10,7 @@
                         (run 'clj-test))
                       (binding [*command-line-args* (conj *command-line-args* "all")]
                         (run 'cljs-node-test))
+                      (run 'examples)
                       auto-build.os.exit-codes/ok)
                   System/exit))}
   clean {:doc "Clean temporary files"
