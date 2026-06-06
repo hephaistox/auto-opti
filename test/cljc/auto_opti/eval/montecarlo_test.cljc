@@ -26,7 +26,10 @@
                       :iterations 100}
                      {:seed #uuid "6db832f7-c10a-414a-b08b-eb5ef1d9b4fd"})
            @x))
-      "iterator call"))
+      "iterator call")
+  (is (nil? (sut/eval nil nil {:radius ""} {})) "radius should be a string")
+  (is (nil? (sut/eval nil nil {:iterations ""} {})) "iterations should be a string")
+  (is (nil? (sut/eval nil nil {} {:seed nil})) "seed can be skipped"))
 
 (deftest valid-pars-test
   (is (= {:model {:error {:radius ["should be an integer"]

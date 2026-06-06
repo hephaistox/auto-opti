@@ -2,6 +2,7 @@
   "Optimisation evalutions. This namespace contains some simple evalutions for test and demo purposes.
 
   It contains also a `registry` mechanism that users should enrich."
+  (:refer-clojure :exclude [eval])
   (:require
    [auto-opti                 :as-alias opti]
    [auto-opti.eval.montecarlo :as opt-montecarlo]))
@@ -14,9 +15,9 @@
    id
    [:map {:closed true}
     [::opti/doc :string]
-    [::opti/rep :keyword]
+    [::opti/rep-type :keyword]
     [::opti/valid-pars fn?]
-    [::opti/eval fn?]]])
+    [::opti/eval-fn fn?]]])
 
 (def registry
   "Registry of evaluations.
@@ -37,6 +38,21 @@
 
   * (nb-in / nb-total) = (/ π*radius*radius 4*radius*radius) = π/4
   * π = 4*(nb-in/nb-total)"
-           :rep :seed
+           :rep-type :seed
            :valid-pars opt-montecarlo/valid-pars
-           :eval opt-montecarlo/eval}})
+           :eval-fn opt-montecarlo/eval}})
+
+(defn eval-map
+  "Build an evaluation for keyword
+  
+  Returns a function that evaluates a unique parameter - the representation and returns a solution."
+  ([kw params iterator-fn model] (eval-map kw registry params iterator-fn model))
+  ([kw registry params iterator-fn model]
+   (let [{::opti/keys [eval-fn valid-pars]} (get registry kw)]
+     (if valid-pars
+       (let [err (valid-pars params iterator-fn model)]
+         (if err err (partial eval-fn params iterator-fn model)))
+       {:error :not-found
+        :kw kw}))))
+
+

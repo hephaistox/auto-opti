@@ -7,22 +7,22 @@
       :cljs [cljs.test :refer [deftest is testing] :include-macros true])))
 
 (deftest registry-schema-test
-  (testing "The registry-schema itself is a well-formed malli schema."
-    (is (nil? (core-schema/validate-humanize sut/registry-schema))))
+  (is (nil? (core-schema/validate-humanize sut/registry-schema))
+      "The registry-schema itself is a well-formed malli schema.")
   (testing "Names are keywords as declared by `id`."
     (is (= :keyword sut/id))
     (is (every? keyword? (keys sut/registry))))
-  (testing "The registry validates against its own closed, `::opti`-qualified schema."
-    (is (nil? (core-schema/validate-data-humanize sut/registry-schema sut/registry)))))
+  (is (nil? (core-schema/validate-data-humanize sut/registry-schema sut/registry))
+      "The registry validates against its own closed, `::opti`-qualified schema."))
 
 (deftest registry-content-test
   (testing "The built-in montecarlo-pi evaluation is registered with the expected entries."
     (let [entry (:montecarlo-pi sut/registry)]
       (is (some? entry) "montecarlo-pi is registered")
       (is (string? (::opti/doc entry)))
-      (is (keyword? (::opti/rep entry)))
+      (is (keyword? (::opti/rep-type entry)))
       (is (fn? (::opti/valid-pars entry)))
-      (is (fn? (::opti/eval entry))))))
+      (is (fn? (::opti/eval-fn entry))))))
 
 (deftest registry-dispatch-test
   (testing "`:valid-pars` looked up through the registry validates the model."
@@ -42,7 +42,7 @@
   (testing "`:eval` looked up through the registry runs the evaluation."
     (let [eval-fn (-> sut/registry
                       :montecarlo-pi
-                      ::opti/eval)
+                      ::opti/eval-fn)
           pi (eval-fn {}
                       nil
                       {:radius 100
@@ -53,9 +53,22 @@
   (testing "`:eval` returns nil when iterations is not a number."
     (let [eval-fn (-> sut/registry
                       :montecarlo-pi
-                      ::opti/eval)]
+                      ::opti/eval-fn)]
       (is (nil? (eval-fn {}
                          nil
                          {:radius 100
                           :iterations nil}
                          {:seed #uuid "6db832f7-c10a-414a-b08b-eb5ef1d9b4fe"}))))))
+
+(deftest eval-map-test
+  (is (= {:error :not-found
+          :kw :non-existing}
+         (sut/eval-map :non-existing {} nil {:seed #uuid "6db832f7-c10a-414a-b08b-eb5ef1d9b4fe"}))
+      "A missing one is ok")
+  (is (let [eval-fn (sut/eval-map :montecarlo-pi
+                                  nil
+                                  nil
+                                  {:radius 100
+                                   :iterations 100})]
+        (eval-fn {:seed #uuid "6db832f7-c10a-414a-b08b-eb5ef1d9b4fe"}))
+      "A valid evaluation"))

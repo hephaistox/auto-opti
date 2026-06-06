@@ -11,9 +11,9 @@
   "`x` and `y` are drawn in an uniform distribution in `[-radius;radius]` interval.
 
   * So the points at coordinatess (x,y) are in a square of edge `2*radius` and surface `4*radius*radius`.
-  * A point is in the circle where its distance from the center of the circle - the origin - is less that radius. This distance is (square root of x2 + y2)
+  * A point is in the circle when its distance from the center of the circle - the origin - is less that radius. This distance is `(square root of x2 + y2)`
 
-  * So, if we assume the distribution is perfect, the distribution between the circle and the square are based on their surface:
+  * So, if we assume the distribution is perfect, the calculation of the distribution between the circle and the square are based on their surface:
       * square: total number of drawns -> 4*radius*radius
       * circle: number of drawns with distance less than radius from the origin -> π*radius*radius
 
@@ -27,28 +27,29 @@
     :as _model}
    {:keys [seed]
     :as _rep}]
-  (let [radius-square (* radius radius)
-        unif-dst (opt-dstb/distribution #::opti{:dstb-name :uniform
-                                                :seed seed
-                                                :a (- radius)
-                                                :b radius})]
-    (when (number? iterations)
-      (loop [it 0
-             nb-in 0]
-        (when (fn? iterator-fn)
-          (iterator-fn {:nb-in nb-in
-                        :it it
-                        :intermediate-criteria (when (pos? it)
-                                                 (-> (/ nb-in it)
-                                                     (* 4.0)))
-                        :iterations iterations}))
-        (let [x (opt-dstb/draw unif-dst)
-              y (opt-dstb/draw unif-dst)
-              in-circle? (<= (+ (* x x) (* y y)) radius-square)]
-          (if (< it iterations)
-            (recur (inc it) (if in-circle? (inc nb-in) nb-in))
-            (-> (/ nb-in (inc it))
-                (* 4.0))))))))
+  (when (and (number? radius) (number? iterations))
+    (let [radius-square (* radius radius)
+          unif-dst (opt-dstb/distribution #::opti{:dstb-name :uniform
+                                                  :seed seed
+                                                  :a (- radius)
+                                                  :b radius})]
+      (when (number? iterations)
+        (loop [it 0
+               nb-in 0]
+          (when (fn? iterator-fn)
+            (iterator-fn {:nb-in nb-in
+                          :it it
+                          :intermediate-criteria (when (pos? it)
+                                                   (-> (/ nb-in it)
+                                                       (* 4.0)))
+                          :iterations iterations}))
+          (let [x (opt-dstb/draw unif-dst)
+                y (opt-dstb/draw unif-dst)
+                in-circle? (<= (+ (* x x) (* y y)) radius-square)]
+            (if (< it iterations)
+              (recur (inc it) (if in-circle? (inc nb-in) nb-in))
+              (-> (/ nb-in (inc it))
+                  (* 4.0)))))))))
 
 (def mc-model-schema [:map [:radius :int] [:iterations :int]])
 
