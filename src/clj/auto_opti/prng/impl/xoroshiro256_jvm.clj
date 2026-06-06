@@ -11,8 +11,8 @@
   Algorithm reference: https://prng.di.unimi.it/xoshiro256plus.c"
   (:import [java.util UUID])
   (:require
-   [auto-opti.prng.impl.xoro-common :as xoro-common]
-   [auto-opti.prng.stateful         :as opt-prng-stateful]))
+   [auto-opti.prng.impl.xoro-common-jvm :as xoro-common]
+   [auto-opti.prng.stateful             :as opt-prng-stateful]))
 
 (defn uuid->state
   "Convert UUID to a 256-bit state [s0 s1 s2 s3]."

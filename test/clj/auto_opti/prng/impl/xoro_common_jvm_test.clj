@@ -1,7 +1,7 @@
-(ns auto-opti.prng.impl.xoro-common-test
+(ns auto-opti.prng.impl.xoro-common-jvm-test
   (:require
-   [auto-opti.prng.impl.xoro-common :as sut]
-   [clojure.test                    :refer [deftest is testing]]))
+   [auto-opti.prng.impl.xoro-common-jvm :as sut]
+   [clojure.test                        :refer [deftest is testing]]))
 
 (deftest test-rotl
   (testing "rotl with known values"

@@ -7,7 +7,6 @@
 
   See [xoroshiro128 repo](https://github.com/thedavidmeister/xoroshiro128] for more details."
   {:no-doc true}
-  (:refer-clojure :exclude [next])
   (:require
    [auto-opti.maths                 :as opt-maths]
    [auto-opti.prng.stateful-wrapper :as opt-stateful-wrapper]

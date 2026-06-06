@@ -1,7 +1,6 @@
 (ns auto-opti.prng.impl.built-in
   "PRNG implementation built-in in your platform."
   {:no-doc true}
-  (:refer-clojure :exclude [next])
   (:require
    [auto-opti.prng.stateful :as opt-prng-stateful]))
 

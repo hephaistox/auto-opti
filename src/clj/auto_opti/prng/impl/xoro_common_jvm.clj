@@ -1,4 +1,4 @@
-(ns auto-opti.prng.impl.xoro-common
+(ns auto-opti.prng.impl.xoro-common-jvm
   "Common features shared by the JVM-only xoro* prngs (`xoroshiro128-jvm`,
   `xoroshiro256`).
 
